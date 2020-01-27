@@ -1,0 +1,16 @@
+{
+    "name": "vm/gendiff",
+    "description": "2st hexlet project",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "VitaMinkin",
+            "email": "inetmanager2009@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "docopt/docopt": "dev-master"
+    }
+}

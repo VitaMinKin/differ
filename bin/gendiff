@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+$autoloadPath1 = __DIR__ . '/../../../autoload.php';
+$autoloadPath2 = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoloadPath1)) {
+    require_once $autoloadPath1;
+} else {
+    require_once $autoloadPath2;
+}
+
+$doc = file_get_contents (__DIR__.'/../cli.docopt');
+
+$args = \Docopt::handle($doc);
+
+$params = array(
+    'argv'=>array_slice($_SERVER['argv'], 1),
+    'help'=>true,
+    'version'=>null,
+    'optionsFirst'=>false,
+);
+$args = Docopt::handle($doc, $params);
