@@ -9,14 +9,14 @@ if (file_exists($autoloadPath1)) {
     require_once $autoloadPath2;
 }
 
-$doc = file_get_contents (__DIR__.'/../cli.docopt');
+$doc = file_get_contents(__DIR__ . '/../src/cli.docopt');
 
 $args = \Docopt::handle($doc);
 
 $params = array(
-    'argv'=>array_slice($_SERVER['argv'], 1),
-    'help'=>true,
-    'version'=>null,
-    'optionsFirst'=>false,
+    'argv' => array_slice($_SERVER['argv'], 1),
+    'help' => true,
+    'version' => null,
+    'optionsFirst' => false,
 );
 $args = Docopt::handle($doc, $params);

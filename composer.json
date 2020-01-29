@@ -11,6 +11,13 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "docopt/docopt": "dev-master"
+        "docopt/docopt": "dev-master",
+        "funct/funct": "^1.0@dev"
+    },
+    "scripts": {
+        "phpcs": "phpcs"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.0@dev"
     }
 }
