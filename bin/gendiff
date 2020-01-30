@@ -19,4 +19,8 @@ $params = array(
     'version' => null,
     'optionsFirst' => false,
 );
-$args = Docopt::handle($doc, $params);
+$args = \Docopt::handle($doc, $params);
+
+use function genDiff\compareFiles\run;
+
+run($params['argv']);
