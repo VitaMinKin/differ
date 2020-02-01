@@ -21,6 +21,6 @@ $params = array(
 );
 $args = \Docopt::handle($doc, $params);
 
-use function genDiff\compareFiles\run;
+use function Differ\genDiff;
 
-run($params['argv']);
+echo genDiff($params['argv'][0], $params['argv'][1]);

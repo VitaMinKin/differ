@@ -1,5 +1,5 @@
 {
-    "name": "vm/gendiff",
+    "name": "vm/differ",
     "description": "2st hexlet project",
     "type": "project",
     "license": "MIT",
@@ -10,6 +10,9 @@
         }
     ],
     "minimum-stability": "dev",
+    "bin": [
+        "bin/gendiff"
+    ],
     "require": {
         "docopt/docopt": "dev-master",
         "funct/funct": "^1.0@dev"
@@ -22,7 +25,7 @@
     },
     "autoload": {
         "files": [
-            "src/compareFiles.php"
+            "src/Differ.php"
         ]
     }
 }
