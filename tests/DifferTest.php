@@ -3,7 +3,6 @@
 namespace Differ\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Differ;
 
 use function Differ\compareData;
 

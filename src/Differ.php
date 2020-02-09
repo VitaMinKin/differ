@@ -36,13 +36,13 @@ function compareData(array $f1, array $f2)
     return $result;
 }
 
-function genDiff($pathToFile1, $pathToFile2)
+function genDiff($format = null, $pathToFile1, $pathToFile2)
 {
     try {
         $firstFile = getFileContent($pathToFile1);
         $secondFile = getFileContent($pathToFile2);
     } catch (\Exception $e) {
-        echo $e;
+        printf($e);
         exit;
     }
 

@@ -15,7 +15,8 @@
     ],
     "require": {
         "docopt/docopt": "dev-master",
-        "funct/funct": "^1.0@dev"
+        "funct/funct": "^1.0@dev",
+        "symfony/yaml": "^5.1@dev"
     },
     "scripts": {
         "phpcs": "phpcs",

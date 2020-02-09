@@ -9,18 +9,16 @@ if (file_exists($autoloadPath1)) {
     require_once $autoloadPath2;
 }
 
-$doc = file_get_contents(__DIR__ . '/../src/cli.docopt');
-
-$args = \Docopt::handle($doc);
+$cli = file_get_contents(__DIR__ . '/../src/cli.docopt');
 
 $params = array(
     'argv' => array_slice($_SERVER['argv'], 1),
     'help' => true,
-    'version' => null,
+    'version' => 'differ 0.0.1',
     'optionsFirst' => false,
 );
-$args = \Docopt::handle($doc, $params);
+$arguments = \Docopt::handle($cli, $params)->args;
 
 use function Differ\genDiff;
 
-echo genDiff($params['argv'][0], $params['argv'][1]);
+echo genDiff($arguments['--format'], $arguments['<firstFile>'], $arguments['<secondFile>']);
