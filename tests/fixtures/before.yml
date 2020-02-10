@@ -1,4 +1,5 @@
 host: hexlet.io
-timeout: 50
+port: 8080
 proxy: 123.234.53.22
+country: Russia
 

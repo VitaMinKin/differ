@@ -28,7 +28,8 @@
     },
     "autoload": {
         "files": [
-            "src/Differ.php"
+            "src/Differ.php",
+            "src/parsers.php"
         ]
     }
 }
