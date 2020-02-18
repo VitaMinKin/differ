@@ -21,4 +21,4 @@ $arguments = \Docopt::handle($cli, $params)->args;
 
 use function Differ\genDiff;
 
-echo genDiff($arguments['--format'], $arguments['<firstFile>'], $arguments['<secondFile>']);
+echo genDiff($arguments['<firstFile>'], $arguments['<secondFile>'], $arguments['--format']);

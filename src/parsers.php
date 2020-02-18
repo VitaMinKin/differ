@@ -5,7 +5,7 @@ namespace Differ\parsers;
 use SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
-function getFileContent($format, $path)
+function getFileContent($path)
 {
     $file = new SplFileInfo($path);
 
@@ -30,9 +30,9 @@ function getFileContent($format, $path)
     Сопоставить представленный формат расширению файла, ругаться при несоответствии!
     */
 
-    if (($format == 'json') || ($extension == 'json')) {
+    if ($extension == 'json') { //обработка ошибок декодирования json
         return json_decode($fileContent, true);
-    } elseif (($format == 'yaml') || ($extension == 'yml')) {
+    } elseif ($extension == 'yml') {
         $parsed = Yaml::parse($fileContent, Yaml::PARSE_OBJECT_FOR_MAP);
         return (array) $parsed;
     } else {
