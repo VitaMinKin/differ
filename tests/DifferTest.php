@@ -48,38 +48,80 @@ class DifferTest extends TestCase
         $this->assertEquals($expected, $result);
     }*/
 
+    private $firstFile;
+    private $secondFile;
+    private $diff;
+
+    protected function setUp():void
+    {
+        $firstFile = file_get_contents(__DIR__ . '/fixtures/beforeTree.json');
+        $this->firstFile = json_decode($firstFile, true);
+
+        $secondFile = file_get_contents(__DIR__ . '/fixtures/afterTree.json');
+        $this->secondFile = json_decode($secondFile, true);
+
+    }
+
     public function testGenDiffNested()
     {
-        $firstFile = file_get_contents(__DIR__ . '/fixtures/beforeTreeDeep.json');
-        $first = json_decode($firstFile, true);
-
-        $secondFile = file_get_contents(__DIR__ . '/fixtures/afterTreeDeep.json');
-        $second = json_decode($secondFile, true);
-
         $expected = [
             ['common' => [
-                ['setting1' => ['change' => 'unchanged', 'value' => 'Value 1']],
-                ['setting2' => ['change' => 'deleted']],
-                ['setting3' => ['change' => 'unchanged', 'value' => true]],
-                ['setting6' => ['change' => 'deleted']],
-                ['setting4' => ['change' => 'added', 'value' => 'blah blah']],
-                ['setting5' => ['change' => 'added', 'value' => [
+                ['setting1' => ['itemState' => 'unchanged', 'value' => 'Value 1']],
+                ['setting2' => ['itemState' => 'deleted']],
+                ['setting3' => ['itemState' => 'unchanged', 'value' => true]],
+                ['setting6' => ['itemState' => 'deleted']],
+                ['setting4' => ['itemState' => 'added', 'value' => 'blah blah']],
+                ['setting5' => ['itemState' => 'added', 'value' => [
                         'key5' => 'value5'
                     ],
                 ]],
             ]],
             ['group1' => [
-              ['baz' => ['diff' => 'changed', 'oldValue' => 'bas', 'newValue' => "bars"]],
-              ['foo' => ['diff' => 'unchanged', 'value' => 'bar']],
+              ['baz' => ['itemState' => 'changed', 'oldValue' => 'bas', 'newValue' => "bars"]],
+              ['foo' => ['itemState' => 'unchanged', 'value' => 'bar']],
             ]],
-            ['group2' => ['diff' => 'deleted']],
-            ['group3' => ['diff' => 'added', 'value' => [
+            ['group2' => ['itemState' => 'deleted']],
+            ['group3' => ['itemState' => 'added', 'value' => [
                 'fee' => '100500'
                 ]
             ]]
         ];
 
-        $result = \Differ\getDiff($first, $second);
-        $this->assertEquals($expected, $result);
+        $actual = \Differ\getDiff($this->firstFile, $this->secondFile);
+        $this->diff = $actual;
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testRender()
+    {
+        $expected = "{
+            common: {
+                setting1: Value 1
+            - setting2: 200
+                setting3: true
+            - setting6: {
+                    key: value
+                }
+            + setting4: blah blah
+            + setting5: {
+                    key5: value5
+                }
+            }
+            group1: {
+            + baz: bars
+            - baz: bas
+                foo: bar
+            }
+        - group2: {
+                abc: 12345
+            }
+        + group3: {
+                fee: 100500
+            }
+        }";
+
+        $diff = \Differ\getDiff($this->firstFile, $this->secondFile);
+        $actual = \Differ\render($diff);
+        $this->assertEquals($expected, $actual);
     }
 }
