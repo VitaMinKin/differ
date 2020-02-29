@@ -27,6 +27,7 @@
         "phpunit/phpunit": "8.5.x-dev"
     },
     "autoload": {
+        "psr-4": {"Differ\\": "src/"},
         "files": [
             "src/Differ.php",
             "src/parsers.php"

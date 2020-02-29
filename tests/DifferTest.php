@@ -65,25 +65,44 @@ class DifferTest extends TestCase
     public function testGenDiffNested()
     {
         $expected = [
-            'common' => [
-                'setting1' => ['itemState' => 'unchanged', 'value' => 'Value 1'],
-                'setting2' => ['itemState' => 'deleted', 'value' => '200'],
-                'setting3' => ['itemState' => 'unchanged', 'value' => true],
-                'setting6' => ['itemState' => 'deleted', 'value' => ['key'=> 'value']],
-                'setting4' => ['itemState' => 'added', 'value' => 'blah blah'],
-                'setting5' => ['itemState' => 'added', 'value' => [
-                        'key5' => 'value5'
-                    ],
-                ],
-            ],
-            'group1' => [
-              'baz' => ['itemState' => 'changed', 'oldValue' => 'bas', 'newValue' => "bars"],
-              'foo' => ['itemState' => 'unchanged', 'value' => 'bar'],
-            ],
-            'group2' => ['itemState' => 'deleted', 'value' => ['abc'=> '12345']],
-            'group3' => ['itemState' => 'added', 'value' => [
-                'fee' => '100500'
-                ]
+            ['name' => 'common',
+            'diff' => [],
+            'children' => [
+                ['name' => 'setting1',
+                'diff' => ['itemState' => 'unchanged', 'value' => 'Value 1'],
+                'children' => []],
+                ['name' => 'setting2',
+                'diff' => ['itemState' => 'deleted', 'value' => '200'],
+                'children' => []],
+                ['name' => 'setting3',
+                'diff' => ['itemState' => 'unchanged', 'value' => true],
+                'children' => []],
+                ['name' => 'setting6',
+                'diff' => ['itemState' => 'deleted', 'value' => ['key'=> 'value']],
+                'children' => []],
+                ['name' => 'setting4',
+                'diff' => ['itemState' => 'added', 'value' => 'blah blah'],
+                'children' => []],
+                ['name' => 'setting5',
+                'diff' => ['itemState' => 'added', 'value' => ['key5' => 'value5']],
+                'children' => []]
+            ]],
+            ['name' => 'group1',
+            'diff' => [],
+            'children' => [
+                ['name' => 'baz',
+                'diff' => ['itemState' => 'changed', 'oldValue' => 'bas', 'newValue' => "bars"],
+                'children' => []],
+                ['name' => 'foo',
+                'diff' => ['itemState' => 'unchanged', 'value' => 'bar'],
+                'children' => []]
+            ]],
+            ['name' => 'group2',
+            'diff' => ['itemState' => 'deleted', 'value' => ['abc'=> '12345']],
+            'children' => []],
+            ['name' => 'group3',
+            'diff' => ['itemState' => 'added', 'value' => ['fee' => '100500']],
+            'children' => []
             ]
         ];
 
@@ -92,38 +111,31 @@ class DifferTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testRender()
+    public function testDiffRenderer()
     {
         $expected = <<<EXP
 {
    common: {
       setting1: Value 1
     - setting2: 200
-      setting3: true
-    - setting6: {
-         key: value
-      }
+      setting3: 1
+    - setting6: {"key":"value"}
     + setting4: blah blah
-    + setting5: {
-         key5: value5
-      }
+    + setting5: {"key5":"value5"}
    }
    group1: {
-    + baz: bars
     - baz: bas
+    + baz: bars
       foo: bar
    }
- - group2: {
-      abc: 12345
-   }
- + group3: {
-      fee: 100500
-   }
+ - group2: {"abc":"12345"}
+ + group3: {"fee":"100500"}
 }
 EXP;
 
         $diff = \Differ\getDiff($this->firstFile, $this->secondFile);
-        $actual = \Differ\render($diff);
+        $render = new \Differ\DiffRenderer();
+        $actual = $render->render($diff);
         print_r ($actual);
         $this->assertEquals($expected, $actual);
     }
