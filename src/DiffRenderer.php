@@ -14,69 +14,59 @@ class DiffRenderer
     public function render(array $diff)
     {
         if ($this->format == 'text') {
-            return self::returnText($diff);
+            return self::convertToText($diff);
         }
     }
 
-    private static function returnText(array $diff)
+    private static function getStringValue($item)
     {
-        $funct = function($diff, $pre = "") use (&$funct) {
-            $pre .= "   ";
-            $result = array_reduce($diff, function ($acc, $elem) use (&$funct, $pre) {
-                //$acc .= "{\n";
+        if (is_array($item)) {
+            return json_encode($item);
+        } else {
+            return $item;
+        }
+    }
 
-                $state = $elem['diff'];
+    private static function convertToText(array $diff)
+    {
+        $converter = function ($diff, $depth = "") use (&$converter) {
+            $prefix = ['unchanged' => '   ', 'added' => ' + ', 'deleted' => ' - '];
 
+            $prefix = array_map(function ($item) use ($depth) {
+                return $depth . $item;
+            }, $prefix);
+
+            $result = array_reduce($diff, function ($output, $element) use (&$converter, $prefix) {
+                $state = $element['diff'];
                 if (!empty($state)) {
-                    if ($state['itemState'] != 'changed') {
-                        if (is_array($state['value'])) {
-                            $value = json_encode($state['value']);
-                        } else {
-                            $value = $state['value'];
-                        }
+                    if (isset($state['value'])) {
+                        $value = self::getStringValue($state['value']);
+                    } else {
+                        $oldValue = self::getStringValue($state['oldValue']);
+                        $newValue = self::getStringValue($state['newValue']);
                     }
 
-                    switch ($state['itemState']) {
-                        case 'unchanged':
-                            $acc .= $pre."   {$elem['name']}: $value\n";
-                        break;
-                        case 'deleted':
-                            $acc .= $pre." - {$elem['name']}: $value\n";
-                        break;
-                        case 'added':
-                            $acc .= $pre." + {$elem['name']}: $value\n";
-                        break;
-                        case 'changed':
-                            if (is_array($state['oldValue'])) {
-                                $oldValue = json_encode($state['oldValue']);
-                            } else {
-                                $oldValue = $state['oldValue'];
-                            }
-
-                            if (is_array($state['newValue'])) {
-                                $newValue = json_encode($state['newValue']);
-                            } else {
-                                $newValue = $state['newValue'];
-                            }
-
-
-                            $acc .= $pre." - {$elem['name']}: $oldValue\n";
-                            $acc .= $pre." + {$elem['name']}: $newValue\n";
-                        break;
+                    if ($state['itemState'] === 'changed') {
+                        $output .= "{$prefix['deleted']}{$element['name']}: $oldValue\n";
+                        $output .= "{$prefix['added']}{$element['name']}: $newValue\n";
+                    } else {
+                        $output .= "{$prefix[$state['itemState']]}{$element['name']}: $value\n";
                     }
                 }
 
-                if (!empty($elem['children'])) {
-                    $acc .= $pre."{$elem['name']}: {\n";
-                    $acc .= $funct($elem['children']);
-                    $acc .= $pre."}\n";
+                if (!empty($element['children'])) {
+                    $output .= "{$prefix['unchanged']}{$element['name']}: {\n";
+                    $output .= $converter($element['children'], $prefix['unchanged']);
+                    $output .= "{$prefix['unchanged']}}\n";
                 }
 
-                return $acc;
+                return $output;
             }, '');
+
             return $result;
         };
 
-        return "{\n".$funct($diff)."}";
+        $outputString = $converter($diff);
+        return "{\n$outputString}\n";
     }
 }

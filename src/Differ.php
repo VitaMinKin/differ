@@ -2,8 +2,6 @@
 
 namespace Differ;
 
-use function funct\Collection\union;
-use function funct\Collection\flatten;
 use function Differ\parsers\getFileContent;
 
 function getDiff(array $f1, array $f2)
@@ -14,10 +12,7 @@ function getDiff(array $f1, array $f2)
         $paramsList = array_keys($paramsList);
 
         $diff = array_map(function ($elem) use ($f1, $f2, &$funct) {
-            $item = ['name' => $elem,
-                'diff' => [],
-                'children' => []
-            ];
+            $item = ['name' => $elem, 'diff' => [], 'children' => []];
 
             if (!isset($f1[$elem])) {
                 $item['diff'] = ['itemState' => 'added', 'value' => $f2[$elem]];
@@ -34,10 +29,8 @@ function getDiff(array $f1, array $f2)
             }
 
             return $item;
-
         }, $paramsList);
 
-        //return array_merge(...$diff);
         return $diff;
     };
 
@@ -54,7 +47,8 @@ function genDiff($pathToFile1, $pathToFile2, $format = null)
         exit;
     }
 
-    $data = compareData($firstFile, $secondFile);
-    $result = implode(PHP_EOL, $data);
-    return "{\n$result\n}\n";
+    $diff = getDiff($firstFile, $secondFile);
+    $render = new \Differ\DiffRenderer();
+    $result = $render->render($diff);
+    return $result;
 }

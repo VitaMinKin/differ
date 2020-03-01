@@ -8,49 +8,8 @@ use Differ\getDiff;
 
 class DifferTest extends TestCase
 {
-    /*public function testGenDiffJson()
-    {
-        $firstFile = __DIR__ . '/fixtures/before.json';
-        $secondFile = __DIR__ .'/fixtures/after.json';
-        $expected = file_get_contents(__DIR__ . '/fixtures/result4Json.txt');
-        $result = genDiff($firstFile, $secondFile);
-
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testGenDiffYaml()
-    {
-        $firstFile = __DIR__ . '/fixtures/before.yml';
-        $secondFile = __DIR__ .'/fixtures/after.yml';
-        $expected = file_get_contents(__DIR__ . '/fixtures/result4yaml.txt');
-        $result = genDiff($firstFile, $secondFile);
-
-        $this->assertEquals($expected, $result);
-    }*/
-
-    /*public function testGetDiffFlat()
-    {
-        $firstFile = file_get_contents(__DIR__ . '/fixtures/before.json');
-        $first = json_decode($firstFile, true);
-
-        $secondFile = file_get_contents(__DIR__ . '/fixtures/after.json');
-        $second = json_decode($secondFile, true);
-
-        $expected = [
-                'host' => ['diff' => 'unchanged', 'value' => 'hexlet.io'],
-                'timeout' => ['diff' => 'changed', 'oldValue' => '50', 'newValue' => '20'],
-                'proxy' => ['diff' => 'deleted'],
-                'verbose' => ['diff' => 'added', 'value' => '1'],
-                'time' => ['diff' => 'added', 'value' => '15s']
-        ];
-
-        $result = \Differ\getDiff($first, $second);
-        $this->assertEquals($expected, $result);
-    }*/
-
     private $firstFile;
     private $secondFile;
-    private $diff;
 
     protected function setUp():void
     {
@@ -107,7 +66,6 @@ class DifferTest extends TestCase
         ];
 
         $actual = \Differ\getDiff($this->firstFile, $this->secondFile);
-        //$this->diff = $actual;
         $this->assertEquals($expected, $actual);
     }
 
@@ -131,12 +89,12 @@ class DifferTest extends TestCase
  - group2: {"abc":"12345"}
  + group3: {"fee":"100500"}
 }
+
 EXP;
 
         $diff = \Differ\getDiff($this->firstFile, $this->secondFile);
         $render = new \Differ\DiffRenderer();
         $actual = $render->render($diff);
-        print_r ($actual);
         $this->assertEquals($expected, $actual);
     }
 }
