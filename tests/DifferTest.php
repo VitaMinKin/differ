@@ -69,7 +69,7 @@ class DifferTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testDiffRenderer()
+    public function testconvertToText()
     {
         $expected = <<<EXP
 {
@@ -91,10 +91,35 @@ class DifferTest extends TestCase
 }
 
 EXP;
+        $class = new \ReflectionClass('\Differ\DiffRenderer');
+        $method = $class->getMethod('convertToText');
+        $method->setAccessible(true);
 
         $diff = \Differ\getDiff($this->firstFile, $this->secondFile);
         $render = new \Differ\DiffRenderer();
-        $actual = $render->render($diff);
+        $actual = $method->invoke($render, $diff);
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testConvertToPlain()
+    {
+        $expected = <<<EXP
+Property 'common.setting2' was removed
+Property 'common.setting6' was removed
+Property 'common.setting4' was added with value: 'blah blah'
+Property 'common.setting5' was added with value: 'complex value'
+Property 'group1.baz' was changed. From 'bas' to 'bars'
+Property 'group2' was removed
+Property 'group3' was added with value: 'complex value'
+
+EXP;
+        $class = new \ReflectionClass('\Differ\DiffRenderer');
+        $method = $class->getMethod('convertToPlain');
+        $method->setAccessible(true);
+
+        $diff = \Differ\getDiff($this->firstFile, $this->secondFile);
+        $render = new \Differ\DiffRenderer();
+        $actual = $method->invoke($render, $diff);
         $this->assertEquals($expected, $actual);
     }
 }

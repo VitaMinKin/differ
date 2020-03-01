@@ -13,8 +13,13 @@ class DiffRenderer
 
     public function render(array $diff)
     {
-        if ($this->format == 'text') {
-            return self::convertToText($diff);
+        switch ($this->format) {
+            case 'text':
+                return self::convertToText($diff);
+            break;
+            case 'plain':
+                return self::convertToPlain($diff);
+            break;
         }
     }
 
@@ -68,5 +73,10 @@ class DiffRenderer
 
         $outputString = $converter($diff);
         return "{\n$outputString}\n";
+    }
+
+    private static function convertToPlain(array $diff)
+    {
+        return "called";
     }
 }

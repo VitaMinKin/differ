@@ -48,7 +48,7 @@ function genDiff($pathToFile1, $pathToFile2, $format = null)
     }
 
     $diff = getDiff($firstFile, $secondFile);
-    $render = new \Differ\DiffRenderer();
+    $render = new \Differ\DiffRenderer(['format' => $format]);
     $result = $render->render($diff);
     return $result;
 }
