@@ -20,6 +20,9 @@ class DiffRenderer
             case 'plain':
                 return self::convertToPlain($diff);
             break;
+            case 'json':
+                return self::convertToJson($diff);
+            break;
         }
     }
 
@@ -76,7 +79,7 @@ class DiffRenderer
     }
 
 
-    private static function isComplexValue($item)
+    private static function isComplexValue($item) //true or false? Неверное название функции!
     {
         if (is_array($item)) {
             return 'complex value';
@@ -119,5 +122,41 @@ class DiffRenderer
             return $result;
         };
         return $converter($diff);
+    }
+
+    private static function convertToJson(array $diff)
+    { //не надо собирать в json, собери новый массив и кодируй его с помощью json_encode!
+        $converter = function ($diff) use (&$converter) {
+            $result = array_reduce ($diff, function ($output, $element) use (&$converter) {
+                $state = $element['diff'];
+
+                if (!empty($state)) {
+                    if (isset($state['value'])) {
+                        $value = self::getStringValue($state['value']);
+                    } else {
+                        $oldValue = self::getStringValue($state['oldValue']);
+                        $newValue = self::getStringValue($state['newValue']);
+                    }
+
+                    if ($state['itemState'] === 'changed') {
+                        $output[$element['name']] = [['oldValue' => $oldValue, 'newValue' => $newValue], 'changed'];
+                    } elseif ($state['itemState'] === 'added') {
+                        $output[$element['name']] = [$value, 'added'];
+                    } elseif ($state['itemState'] === 'deleted') {
+                        $output[$element['name']] = [$value, 'removed'];
+                    } else {
+                        $output[$element['name']] = $value;
+                    }
+                }
+
+                if (!empty($element['children'])) {
+                    $output[$element['name']] = $converter($element['children']);
+                }
+
+                return $output;
+            }, []);
+            return $result;
+        };
+        return json_encode($converter($diff), JSON_PRETTY_PRINT);
     }
 }

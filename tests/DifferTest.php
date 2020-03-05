@@ -122,4 +122,59 @@ EXP;
         $actual = $method->invoke($render, $diff);
         $this->assertEquals($expected, $actual);
     }
+
+    public function testConvertToJson()
+    {
+        $expected = <<<EXP
+{
+    "common": {
+        "setting1": "Value 1",
+        "setting2": [
+            "200",
+            "removed"
+        ],
+        "setting3": true,
+        "setting6": [
+            "{\"key\":\"value\"}",
+            "removed"
+        ],
+        "setting4": [
+            "blah blah",
+            "added"
+        ],
+        "setting5": [
+            "{\"key5\":\"value5\"}",
+            "added"
+        ]
+    },
+    "group1": {
+        "baz": [
+            {
+                "oldValue": "bas",
+                "newValue": "bars"
+            },
+            "changed"
+        ],
+        "foo": "bar"
+    },
+    "group2": [
+        "{\"abc\":\"12345\"}",
+        "removed"
+    ],
+    "group3": [
+        "{\"fee\":\"100500\"}",
+        "added"
+    ]
+}
+EXP;
+        $class = new \ReflectionClass('\Differ\DiffRenderer');
+        $method = $class->getMethod('convertToJson');
+        $method->setAccessible(true);
+
+        $diff = \Differ\getDiff($this->firstFile, $this->secondFile);
+        $render = new \Differ\DiffRenderer();
+        $actual = $method->invoke($render, $diff);
+        $this->assertEquals($expected, $actual);
+    }
+
 }
