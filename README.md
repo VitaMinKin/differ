@@ -1,4 +1,4 @@
-#differ
+# DIFFER
 
 [![Build Status](https://travis-ci.org/VitaMinKin/php-project-lvl2.svg?branch=master)](https://travis-ci.org/VitaMinKin/php-project-lvl2)
 [![Maintainability](https://api.codeclimate.com/v1/badges/0968894b5763787b039c/maintainability)](https://codeclimate.com/github/VitaMinKin/php-project-lvl2/maintainability)
