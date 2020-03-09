@@ -4,7 +4,7 @@ namespace Differ;
 
 use function Differ\parsers\getFileContent;
 
-function getDiff(array $f1, array $f2)
+function getAst(array $f1, array $f2)
 {
 
     $funct = function ($f1, $f2) use (&$funct) {
@@ -37,18 +37,19 @@ function getDiff(array $f1, array $f2)
     return $funct($f1, $f2);
 }
 
-function genDiff($pathToFile1, $pathToFile2, $format = null)
+function genDiff($pathToFirstFile, $pathToSecondFile, $outputFormat = 'default')
 {
     try {
-        $firstFile = getFileContent($pathToFile1);
-        $secondFile = getFileContent($pathToFile2);
+        $firstFile = getFileContent($pathToFirstFile);
+        $secondFile = getFileContent($pathToSecondFile);
     } catch (\Exception $e) {
-        printf($e);
+        printf($e->getMessage());
         exit;
     }
 
-    $diff = getDiff($firstFile, $secondFile);
-    $render = new \Differ\DiffRenderer(['format' => $format]);
-    $result = $render->render($diff);
+    $ast = getAst($firstFile, $secondFile);
+
+    $render = new \Differ\DiffRenderer(['format' => $outputFormat]);
+    $result = $render->render($ast);
     return $result;
 }

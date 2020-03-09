@@ -6,7 +6,7 @@ class DiffRenderer
 {
     private $format;
 
-    public function __construct($options = ['format' => 'text'])
+    public function __construct($options = ['format' => 'pretty'])
     {
         $this->format = $options['format'];
     }
@@ -14,14 +14,14 @@ class DiffRenderer
     public function render(array $diff)
     {
         switch ($this->format) {
-            case 'text':
-                return self::convertToText($diff);
-            break;
             case 'plain':
                 return self::convertToPlain($diff);
             break;
             case 'json':
                 return self::convertToJson($diff);
+            break;
+            default:
+                return self::convertToText($diff);
             break;
         }
     }
@@ -91,7 +91,7 @@ class DiffRenderer
     private static function convertToPlain(array $diff)
     {
         $converter = function ($diff, $parentName = '') use (&$converter) {
-            $result = array_reduce ($diff, function ($output, $element) use (&$converter, $parentName) {
+            $result = array_reduce($diff, function ($output, $element) use (&$converter, $parentName) {
                 $propertyName = "$parentName{$element['name']}";
 
                 $state = $element['diff'];
@@ -125,9 +125,9 @@ class DiffRenderer
     }
 
     private static function convertToJson(array $diff)
-    { //не надо собирать в json, собери новый массив и кодируй его с помощью json_encode!
+    {
         $converter = function ($diff) use (&$converter) {
-            $result = array_reduce ($diff, function ($output, $element) use (&$converter) {
+            $result = array_reduce($diff, function ($output, $element) use (&$converter) {
                 $state = $element['diff'];
 
                 if (!empty($state)) {

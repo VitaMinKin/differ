@@ -8,5 +8,13 @@ Differ - is a utility for finding differences in configuration files.
 
 ### Documentation
 
-This is my second [Hexlet](https://ru.hexlet.io/professions/php/projects/48) project.
+*This is [my](https://ru.hexlet.io/u/vitaminkin) second [Hexlet](https://ru.hexlet.io/professions/php/projects/48) project.*
 
+**Installation**
+> composer require vm/differ
+
+**Usage**
+> gendiff [--format <fmt>] <firstFile> <secondFile>
+
+#### Comparison of flat files (json) 
+[see an example of work](https://asciinema.org/a/p9nlLp1iBpbrwvpqHQfBBPDGX)
