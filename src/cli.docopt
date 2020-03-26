@@ -3,9 +3,19 @@ Generate diff
 Usage:
   gendiff (-h|--help)
   gendiff (-v|--version)
-  gendiff [--format <fmt>] <firstFile> <secondFile> 
+  gendiff [--format <fmt>] <firstFile> <secondFile>
 
 Options:
   -h --help       Show this screen.
   -v --version    Show version.
   --format <fmt>  Report format [default:pretty]
+
+Available input file formats:
+  json
+  yaml
+
+Available output formats:
+  default:  Human-readable format
+  json:     json format
+  plain:    Flat format for displaying differences
+

@@ -21,3 +21,6 @@ Differ - is a utility for finding differences in configuration files.
 
 #### Comparison of flat files (yaml)
 [see an examle of work](https://asciinema.org/a/Fxt9s5BnvWaSOND4XFHdNJS8b)
+
+#### Comparison of nested files (json)
+[see an example of work](https://asciinema.org/a/N9bxPuo3jJIBmZDOGnpw3WT3y)

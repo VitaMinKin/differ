@@ -5,12 +5,6 @@ namespace Differ\parsers;
 use SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
-/*
-    На функцию возложена двойная задача, проверка переданного значения, загрузка файла, парсинг!
-    Нужно разделять ответственность!
-    Думай, ВОВА, думай!!!
-*/
-
 function fileValid($file, $path)
 {
     if (!$file->isFile()) {
@@ -28,8 +22,9 @@ function fileValid($file, $path)
     return true;
 }
 
-function parse($fileContent, $extension)
+function parseContent($content)
 {
+    [$fileContent, $extension] = $content;
     if ($extension == 'json') {
         $parsed = json_decode($fileContent, true);
         return (json_last_error() !== JSON_ERROR_NONE) ? false : $parsed;
@@ -40,7 +35,6 @@ function parse($fileContent, $extension)
         return false;
     }
 }
-
 
 function getFileContent($path)
 {
@@ -53,11 +47,5 @@ function getFileContent($path)
     } else {
         throw new \Exception("file '{$path}' is not valid \n");
     }
-
-    $result = parse($fileContent, $extension);
-    if ($result != false) {
-        return $result;
-    } else {
-        throw new \Exception("file '{$path}' is not valid \n");
-    }
+    return [$fileContent, $extension];
 }

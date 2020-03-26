@@ -3,7 +3,9 @@
 namespace Differ\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Differ\getDiff;
+use Differ\genDiff;
+
+use function Differ\genDiff;
 
 class DifferTest extends TestCase
 {
@@ -30,45 +32,60 @@ class DifferTest extends TestCase
 
     public function testConvertToText()
     {
-        $data = file_get_contents(__DIR__ . '/fixtures/pretty.fmt');
+        $data = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
         $expected = unserialize($data);
 
-        $class = new \ReflectionClass('\Differ\DiffRenderer');
-        $method = $class->getMethod('convertToText');
-        $method->setAccessible(true);
-
         $diff = \Differ\getAst($this->firstFile, $this->secondFile);
-        $render = new \Differ\DiffRenderer();
-        $actual = $method->invoke($render, $diff);
+
+        $actual = \Differ\Formatters\pretty\convertToText($diff);
         $this->assertEquals($expected, $actual);
     }
 
     public function testConvertToPlain()
     {
         $expected = file_get_contents(__DIR__ . '/fixtures/plain.fmt');
-
-        $class = new \ReflectionClass('\Differ\DiffRenderer');
-        $method = $class->getMethod('convertToPlain');
-        $method->setAccessible(true);
-
         $diff = \Differ\getAst($this->firstFile, $this->secondFile);
-        $render = new \Differ\DiffRenderer();
-        $actual = $method->invoke($render, $diff);
+
+        $actual = \Differ\Formatters\plain\convertToPlain($diff);
         $this->assertEquals($expected, $actual);
     }
 
     public function testConvertToJson()
     {
-        $data = file_get_contents(__DIR__ . '/fixtures/json.fmt');
+        $data = file_get_contents(__DIR__ . '/fixtures/jsonNested.fmt');
         $expected = unserialize($data);
 
-        $class = new \ReflectionClass('\Differ\DiffRenderer');
-        $method = $class->getMethod('convertToJson');
-        $method->setAccessible(true);
+        $diff = \Differ\getAst($this->firstFile, $this->secondFile);
+        $actual = \Differ\Formatters\json\convertToJson($diff);
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testRender()
+    {
+        $data = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
+        $expected = unserialize($data);
 
         $diff = \Differ\getAst($this->firstFile, $this->secondFile);
-        $render = new \Differ\DiffRenderer();
-        $actual = $method->invoke($render, $diff);
+
+        $actual = \Differ\renderer\render($diff);
+        $this->assertEquals($expected, $actual);
+
+        $actual = \Differ\renderer\render($diff, 'pretty');
+        $this->assertEquals($expected, $actual);
+
+        $actual = \Differ\renderer\render($diff, 'anyString');
+        $this->assertEquals($expected, $actual);
+    }
+
+
+    public function testGenDiff()
+    {
+        $expected = file_get_contents(__DIR__ . '/fixtures/prettyPlain.fmt');
+        $actual = genDiff(__DIR__ . '/fixtures/before.json', __DIR__ . '/fixtures/after.json');
+        $this->assertEquals($expected, $actual);
+
+        $expected = file_get_contents(__DIR__ . '/fixtures/yamlPlain.fmt');
+        $actual = genDiff(__DIR__ . '/fixtures/before.yml', __DIR__ . '/fixtures/after.yml');
         $this->assertEquals($expected, $actual);
     }
 }

@@ -30,7 +30,11 @@
         "psr-4": {"Differ\\": "src/"},
         "files": [
             "src/Differ.php",
-            "src/parsers.php"
+            "src/parsers.php",
+            "src/renderer.php",
+            "src/Formatters/pretty.php",
+            "src/Formatters/plain.php",
+            "src/Formatters/json.php"
         ]
     }
 }

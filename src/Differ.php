@@ -3,6 +3,7 @@
 namespace Differ;
 
 use function Differ\parsers\getFileContent;
+use function Differ\parsers\parseContent;
 
 function getAst(array $f1, array $f2)
 {
@@ -42,14 +43,22 @@ function genDiff($pathToFirstFile, $pathToSecondFile, $outputFormat = 'default')
     try {
         $firstFile = getFileContent($pathToFirstFile);
         $secondFile = getFileContent($pathToSecondFile);
+
+        $firstContent = parseContent($firstFile);
+        $secondContent = parseContent($secondFile);
+
+        if ($firstContent === false) {
+            throw new \Exception("file '{$pathToFirstFile}' is not valid \n");
+        } elseif ($secondContent === false) {
+            throw new \Exception("file '{$pathToSecondFile}' is not valid \n");
+        }
     } catch (\Exception $e) {
         printf($e->getMessage());
         exit;
     }
 
-    $ast = getAst($firstFile, $secondFile);
+    $ast = getAst($firstContent, $secondContent);
 
-    $render = new \Differ\DiffRenderer(['format' => $outputFormat]);
-    $result = $render->render($ast);
-    return $result;
+    $render = \Differ\renderer\render($ast, $outputFormat);
+    return $render;
 }
