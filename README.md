@@ -24,3 +24,10 @@ Differ - is a utility for finding differences in configuration files.
 
 #### Comparison of nested files (json)
 [see an example of work](https://asciinema.org/a/N9bxPuo3jJIBmZDOGnpw3WT3y)
+
+### Comparison of nested files (plain format)
+[see an example of work](https://asciinema.org/a/xjae7SJCvqFXR11mOXFV1Na1S)
+
+### Comparison of nested files (json format)
+[see an example of work](https://asciinema.org/a/SLbmczM4mNJYH9QYrgfWvjWUb)
+

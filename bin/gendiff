@@ -19,11 +19,11 @@ $params = array(
 );
 $arguments = \Docopt::handle($cli, $params)->args;
 
-['<firstFile>' => $pathToFirstFile,
- '<secondFile>' => $pathToSecondFile,
+['<firstFile>' => $pathToFile1,
+ '<secondFile>' => $pathToFile2,
  '--format' => $outputFormat] = $arguments;
 
 use function Differ\genDiff;
-$differ = genDiff($pathToFirstFile, $pathToSecondFile, $outputFormat);
+$differ = genDiff($pathToFile1, $pathToFile2, $outputFormat);
 
 echo $differ;

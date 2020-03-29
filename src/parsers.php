@@ -5,7 +5,7 @@ namespace Differ\parsers;
 use SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
-function fileValid($file, $path)
+function fileValid(splFileInfo $file, $path)
 {
     if (!$file->isFile()) {
         throw new \Exception("the passed path '{$path}' does not contain a file name! \n");
@@ -25,6 +25,7 @@ function fileValid($file, $path)
 function parseContent($content)
 {
     [$fileContent, $extension] = $content;
+
     if ($extension == 'json') {
         $parsed = json_decode($fileContent, true);
         return (json_last_error() !== JSON_ERROR_NONE) ? false : $parsed;
@@ -32,20 +33,22 @@ function parseContent($content)
         $parsed = Yaml::parse($fileContent, Yaml::PARSE_OBJECT_FOR_MAP);
         return (array) $parsed;
     } else {
-        return false;
+        throw new \Exception("Extension '{$extension}' is not supported!");
     }
+
+    return false;
 }
 
-function getFileContent($path)
+function loadFile($path)
 {
     $file = new SplFileInfo($path);
 
     if (fileValid($file, $path)) {
-        $extension = $file->getExtension();
         $pathToFile = $file->getRealPath();
         $fileContent = file_get_contents($pathToFile);
+        $fileExtension = $file->getExtension();
     } else {
         throw new \Exception("file '{$path}' is not valid \n");
     }
-    return [$fileContent, $extension];
+    return [$fileContent, $fileExtension];
 }

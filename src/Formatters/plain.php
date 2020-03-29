@@ -2,12 +2,12 @@
 
 namespace Differ\Formatters\plain;
 
-function isComplexValue($item) //true or false? Неверное название функции!
+function isComplexValue($item)
 {
     if (is_array($item)) {
-        return 'complex value';
+        return true;
     } else {
-        return $item;
+        return false;
     }
 }
 
@@ -21,10 +21,10 @@ function convertToPlain(array $diff)
 
             if (!empty($state)) {
                 if (isset($state['value'])) {
-                    $value = isComplexValue($state['value']);
+                    $value = (isComplexValue($state['value'])) ? 'complex value' : $state['value'];
                 } else {
-                    $oldValue = isComplexValue($state['oldValue']);
-                    $newValue = isComplexValue($state['newValue']);
+                    $oldValue = (isComplexValue($state['oldValue'])) ? 'complex value' : $state['oldValue'];
+                    $newValue = (isComplexValue($state['newValue'])) ? 'complex value' : $state['newValue'];
                 }
 
                 if ($state['itemState'] === 'changed') {
