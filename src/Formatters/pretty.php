@@ -4,7 +4,12 @@ namespace Differ\Formatters\pretty;
 
 function getStringValue($item)
 {
-    return (is_array($item)) ? json_encode($item) : $item;
+    //return (is_array($item)) ? json_encode($item, JSON_PRETTY_PRINT) : $item;
+    if (is_array($item)) {
+        return implode("\n", $item);
+    } else {
+        return $item;
+    }
 }
 
 function convertToText(array $diff)
@@ -17,20 +22,20 @@ function convertToText(array $diff)
         }, $prefix);
 
         $result = array_reduce($diff, function ($output, $element) use (&$converter, $prefix) {
-            $state = $element['diff'];
-            if (!empty($state)) {
-                if (isset($state['value'])) {
-                    $value = getStringValue($state['value']);
+            $currentState = $element['diff'];
+            if (!empty($currentState)) {
+                if (isset($currentState['value'])) {
+                    $value = getStringValue($currentState['value']);
                 } else {
-                    $oldValue = getStringValue($state['oldValue']);
-                    $newValue = getStringValue($state['newValue']);
+                    $oldValue = getStringValue($currentState['oldValue']);
+                    $newValue = getStringValue($currentState['newValue']);
                 }
 
-                if ($state['itemState'] === 'changed') {
+                if ($currentState['itemState'] === 'changed') {
                     $output .= "{$prefix['deleted']}{$element['name']}: $oldValue\n";
                     $output .= "{$prefix['added']}{$element['name']}: $newValue\n";
                 } else {
-                    $output .= "{$prefix[$state['itemState']]}{$element['name']}: $value\n";
+                    $output .= "{$prefix[$currentState['itemState']]}{$element['name']}: $value\n";
                 }
             }
 

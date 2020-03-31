@@ -32,21 +32,22 @@ class DifferTest extends TestCase
 
     public function testConvertToText()
     {
-        $data = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
-        $expected = unserialize($data);
+        $actualData = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
+        //$expected = unserialize($actualData);
+        $expected = $actualData;
 
-        $diff = \Differ\getAst($this->firstFile, $this->secondFile);
+        $ast = \Differ\getAst($this->firstFile, $this->secondFile);
+        $actual = \Differ\Formatters\pretty\convertToText($ast);
 
-        $actual = \Differ\Formatters\pretty\convertToText($diff);
         $this->assertEquals($expected, $actual);
     }
 
     public function testConvertToPlain()
     {
         $expected = file_get_contents(__DIR__ . '/fixtures/plain.fmt');
-        $diff = \Differ\getAst($this->firstFile, $this->secondFile);
+        $ast = \Differ\getAst($this->firstFile, $this->secondFile);
 
-        $actual = \Differ\Formatters\plain\convertToPlain($diff);
+        $actual = \Differ\Formatters\plain\convertToPlain($ast);
         $this->assertEquals($expected, $actual);
     }
 
@@ -55,15 +56,16 @@ class DifferTest extends TestCase
         $data = file_get_contents(__DIR__ . '/fixtures/jsonNested.fmt');
         $expected = unserialize($data);
 
-        $diff = \Differ\getAst($this->firstFile, $this->secondFile);
-        $actual = \Differ\Formatters\json\convertToJson($diff);
+        $ast = \Differ\getAst($this->firstFile, $this->secondFile);
+        $actual = \Differ\Formatters\json\convertToJson($ast);
         $this->assertEquals($expected, $actual);
     }
 
     public function testRender()
     {
         $data = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
-        $expected = unserialize($data);
+        //$expected = unserialize($data);
+        $expected = $data;
 
         $diff = \Differ\getAst($this->firstFile, $this->secondFile);
 
