@@ -5,7 +5,7 @@ namespace Differ\parsers;
 use SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
-function fileValid(splFileInfo $file, $path)
+function isFileValid(splFileInfo $file, $path) //ты должен вернуть предикат! Исключения нужно вызывать в другом месте....
 {
     if (!$file->isFile()) {
         throw new \Exception("the passed path '{$path}' does not contain a file name! \n");
@@ -28,27 +28,27 @@ function parseContent($content)
 
     if ($extension == 'json') {
         $parsed = json_decode($fileContent, true);
-        return (json_last_error() !== JSON_ERROR_NONE) ? false : $parsed;
+        return (json_last_error() === JSON_ERROR_NONE) ? $parsed : false;
     } elseif ($extension == 'yml') {
         $parsed = Yaml::parse($fileContent, Yaml::PARSE_OBJECT_FOR_MAP);
         return (array) $parsed;
-    } else {
+    } else {//по содержимому файла почему не определяем??
         throw new \Exception("Extension '{$extension}' is not supported!");
     }
 
     return false;
 }
 
-function loadFile($path)
+function loadFile($pathFromUser)
 {
-    $file = new SplFileInfo($path);
+    $file = new SplFileInfo($pathFromUser);
 
-    if (fileValid($file, $path)) {
-        $pathToFile = $file->getRealPath();
-        $fileContent = file_get_contents($pathToFile);
+    if (isFileValid($file, $pathFromUser)) {
+        $realPath = $file->getRealPath();
+        $fileContent = file_get_contents($realPath);
         $fileExtension = $file->getExtension();
     } else {
-        throw new \Exception("file '{$path}' is not valid \n");
+        throw new \Exception("file '{$pathFromUser}' is not valid \n");
     }
     return [$fileContent, $fileExtension];
 }

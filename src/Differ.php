@@ -5,62 +5,70 @@ namespace Differ;
 use function Differ\parsers\loadFile;
 use function Differ\parsers\parseContent;
 
-function getAst(array $firstContent, array $secondContent)
+function getAst(array $firstConfig, array $secondConfig)
 {
-    $ast = function ($firstContent, $secondContent) use (&$ast) {
-        $paramsList = array_keys(array_merge($firstContent, $secondContent));
+    $ast = function ($firstConfig, $secondConfig) use (&$ast) {
+        $configNames = array_keys(array_merge($firstConfig, $secondConfig));
 
-        return array_map(function ($elem) use ($firstContent, $secondContent, &$ast) {
-            $item = ['name' => $elem, 'diff' => [], 'children' => []];
+        return array_map(function ($elementName) use ($firstConfig, $secondConfig, &$ast) {
+            $resultParameter = ['name' => $elementName, 'diff' => [], 'children' => []];
+            $comparedParameter1 = isset($firstConfig[$elementName]) ? $firstConfig[$elementName] : null;
+            $comparedParameter2 = isset($secondConfig[$elementName]) ? $secondConfig[$elementName] : null;
 
-            if (!isset($firstContent[$elem])) {
-                $item['diff'] = [
+            if (!isset($comparedParameter1)) {
+                $resultParameter['diff'] = [
                     'itemState' => 'added',
-                    'value' => $secondContent[$elem]
+                    'value' => $comparedParameter2
                 ];
-            } elseif (!isset($secondContent[$elem])) {
-                $item['diff'] = [
-                    'itemState' => 'deleted',
-                    'value' => $firstContent[$elem]
-                ];
-            } elseif ($firstContent[$elem] === $secondContent[$elem]) {
-                $item['diff'] = [
-                    'itemState' => 'unchanged',
-                    'value' => $firstContent[$elem]
-                ];
-            } else {
-                if ((is_array($firstContent[$elem])) && (is_array($secondContent[$elem]))) {
-                    $item['children'] = $ast($firstContent[$elem], $secondContent[$elem]);
-                } else {
-                    $item['diff'] = [
-                        'itemState' => 'changed',
-                        'oldValue' => $firstContent[$elem],
-                        'newValue' => $secondContent[$elem]
-                    ];
-                }
+                return $resultParameter;
             }
 
-            return $item;
-        }, $paramsList);
+            if (!isset($comparedParameter2)) {
+                $resultParameter['diff'] = [
+                    'itemState' => 'deleted',
+                    'value' => $comparedParameter1
+                ];
+                return $resultParameter;
+            }
+
+            if ($comparedParameter1 === $comparedParameter2) {
+                $resultParameter['diff'] = [
+                    'itemState' => 'unchanged',
+                    'value' => $comparedParameter1
+                ];
+                return $resultParameter;
+            }
+
+            if ((is_array($comparedParameter1)) && (is_array($comparedParameter2))) {
+                $resultParameter['children'] = $ast($comparedParameter1, $comparedParameter2);
+            } else {
+                $resultParameter['diff'] = [
+                    'itemState' => 'changed',
+                    'oldValue' => $comparedParameter1,
+                    'newValue' => $comparedParameter2
+                ];
+            }
+            return $resultParameter;
+        }, $configNames);
     };
 
-    return $ast($firstContent, $secondContent);
+    return $ast($firstConfig, $secondConfig);
 }
 
 function genDiff($pathToFirstFile, $pathToSecondFile, $outputFormat = 'default')
 {
     try {
-        $firstFile = loadFile($pathToFirstFile);
+        $firstFile = loadFile($pathToFirstFile); //почему эта функция в модуле парсера???
         $secondFile = loadFile($pathToSecondFile);
 
         $firstContent = parseContent($firstFile);
         $secondContent = parseContent($secondFile);
 
-        if ($firstContent === false) {
+        if ($firstContent === false) { //говнокод!
             throw new \Exception("file '{$pathToFirstFile}' is not valid \n");
         } elseif ($secondContent === false) {
             throw new \Exception("file '{$pathToSecondFile}' is not valid \n");
-        }
+        } //надо думать
     } catch (\Exception $e) {
         printf($e->getMessage());
         exit;
