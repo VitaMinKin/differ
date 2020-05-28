@@ -2,8 +2,8 @@
 
 namespace Differ;
 
-use function Differ\parsers\loadFile;
-use function Differ\parsers\parseContent;
+use function Differ\loader\readFromFile;
+use function Differ\parsers\parseConfig;
 
 function getAst(array $firstConfig, array $secondConfig)
 {
@@ -55,26 +55,31 @@ function getAst(array $firstConfig, array $secondConfig)
     return $ast($firstConfig, $secondConfig);
 }
 
-function genDiff($pathToFirstFile, $pathToSecondFile, $outputFormat = 'default')
+function genDiff($fileLink1, $fileLink2, $outputFormat = 'default')
 {
     try {
-        $firstFile = loadFile($pathToFirstFile); //почему эта функция в модуле парсера???
-        $secondFile = loadFile($pathToSecondFile);
-
-        $firstContent = parseContent($firstFile);
-        $secondContent = parseContent($secondFile);
-
-        if ($firstContent === false) { //говнокод!
-            throw new \Exception("file '{$pathToFirstFile}' is not valid \n");
-        } elseif ($secondContent === false) {
-            throw new \Exception("file '{$pathToSecondFile}' is not valid \n");
-        } //надо думать
+        $config1 = readFromFile($fileLink1);
+        $config2 = readFromFile($fileLink2);
     } catch (\Exception $e) {
         printf($e->getMessage());
         exit;
     }
 
-    $ast = getAst($firstContent, $secondContent);
+    try {
+        $firstConfig = parseConfig($config1);
+    } catch (\Exception $e) {
+        printf("\nError in file $fileLink1: {$e->getMessage()} \n");
+        exit;
+    }
+
+    try {
+        $secondConfig = parseConfig($config2);
+    } catch (\Exception $e) {
+        printf("\nError in file $fileLink2: {$e->getMessage()} \n");
+        exit;
+    }
+
+    $ast = getAst($firstConfig, $secondConfig);
 
     $render = \Differ\renderer\render($ast, $outputFormat);
     return $render;

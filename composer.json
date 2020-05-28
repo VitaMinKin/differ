@@ -32,6 +32,7 @@
             "src/Differ.php",
             "src/parsers.php",
             "src/renderer.php",
+            "src/loader.php",
             "src/Formatters/pretty.php",
             "src/Formatters/plain.php",
             "src/Formatters/json.php"

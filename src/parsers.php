@@ -2,53 +2,39 @@
 
 namespace Differ\parsers;
 
-use SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
-function isFileValid(splFileInfo $file, $path) //ты должен вернуть предикат! Исключения нужно вызывать в другом месте....
+function jsonParse($json)
 {
-    if (!$file->isFile()) {
-        throw new \Exception("the passed path '{$path}' does not contain a file name! \n");
+    $parsed = json_decode($json, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $error = json_last_error();
+        throw new \Exception("Error in json data: '{$error}' \n");
     }
 
-    if (!$file->isReadable()) {
-        throw new \Exception("file '{$file->getFilename()}' cannot be read! \n");
-    }
-
-    if (!$file->getRealPath()) {
-        return false;
-    }
-
-    return true;
+    return $parsed;
 }
 
-function parseContent($content)
+function yamlParse($yml)
 {
-    [$fileContent, $extension] = $content;
+    $parsed = Yaml::parse($yml, Yaml::PARSE_OBJECT_FOR_MAP);
+    return (array) $parsed;
+}
+
+function parseConfig($file)
+{
+    $extension = $file['extension'];
+    $content = $file['content'];
 
     if ($extension == 'json') {
-        $parsed = json_decode($fileContent, true);
-        return (json_last_error() === JSON_ERROR_NONE) ? $parsed : false;
-    } elseif ($extension == 'yml') {
-        $parsed = Yaml::parse($fileContent, Yaml::PARSE_OBJECT_FOR_MAP);
-        return (array) $parsed;
-    } else {//по содержимому файла почему не определяем??
+        return jsonParse($content);
+    }
+
+    if ($extension == 'yml') {
+        return yamlParse($content);
+    } else {
         throw new \Exception("Extension '{$extension}' is not supported!");
     }
 
     return false;
-}
-
-function loadFile($pathFromUser)
-{
-    $file = new SplFileInfo($pathFromUser);
-
-    if (isFileValid($file, $pathFromUser)) {
-        $realPath = $file->getRealPath();
-        $fileContent = file_get_contents($realPath);
-        $fileExtension = $file->getExtension();
-    } else {
-        throw new \Exception("file '{$pathFromUser}' is not valid \n");
-    }
-    return [$fileContent, $fileExtension];
 }
