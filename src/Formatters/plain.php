@@ -15,29 +15,29 @@ function convertToPlain(array $diff)
 {
     $converter = function ($diff, $parentName = '') use (&$converter) {
         $result = array_reduce($diff, function ($output, $element) use (&$converter, $parentName) {
-            $propertyName = "$parentName{$element['name']}";
+            $сompoundParameterName = "$parentName{$element['name']}";
 
-            $state = $element['diff'];
+            $condition = $element['diff'];
 
-            if (!empty($state)) {
-                if (isset($state['value'])) {
-                    $value = (isComplexValue($state['value'])) ? 'complex value' : $state['value'];
+            if (!empty($condition)) {
+                if (isset($condition['value'])) {
+                    $value = (isComplexValue($condition['value'])) ? 'complex value' : $condition['value'];
                 } else {
-                    $oldValue = (isComplexValue($state['oldValue'])) ? 'complex value' : $state['oldValue'];
-                    $newValue = (isComplexValue($state['newValue'])) ? 'complex value' : $state['newValue'];
+                    $oldValue = (isComplexValue($condition['oldValue'])) ? 'complex value' : $condition['oldValue'];
+                    $newValue = (isComplexValue($condition['newValue'])) ? 'complex value' : $condition['newValue'];
                 }
 
-                if ($state['itemState'] === 'changed') {
-                    $output .= "Property '$propertyName' was changed. From '$oldValue' to '$newValue'" . "\n";
-                } elseif ($state['itemState'] === 'added') {
-                    $output .= "Property '$propertyName' was added with value: '$value'" . "\n";
-                } elseif ($state['itemState'] === 'deleted') {
-                    $output .= "Property '$propertyName' was removed" . "\n";
+                if ($condition['itemState'] === 'changed') {
+                    $output .= "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'" . "\n";
+                } elseif ($condition['itemState'] === 'added') {
+                    $output .= "Property '$сompoundParameterName' was added with value: '$value'" . "\n";
+                } elseif ($condition['itemState'] === 'deleted') {
+                    $output .= "Property '$сompoundParameterName' was removed" . "\n";
                 }
             }
 
             if (!empty($element['children'])) {
-                $output .= $converter($element['children'], "{$propertyName}.");
+                $output .= $converter($element['children'], "{$сompoundParameterName}.");
             }
 
             return $output;

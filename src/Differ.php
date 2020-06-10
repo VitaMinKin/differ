@@ -17,7 +17,7 @@ function getAst(array $firstConfig, array $secondConfig)
 
             if (!isset($comparedParameter1)) {
                 $resultParameter['diff'] = [
-                    'itemState' => 'added',
+                    'itemState' => 'added', //ЭТО КОНСТАНТЫ!!!
                     'value' => $comparedParameter2
                 ];
                 return $resultParameter;

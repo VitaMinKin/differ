@@ -4,38 +4,49 @@ namespace Differ\Formatters\pretty;
 
 function getStringValue($item)
 {
-    //return (is_array($item)) ? json_encode($item, JSON_PRETTY_PRINT) : $item;
-    if (is_array($item)) {
-        return implode("\n", $item);
-    } else {
-        return $item;
+    if (is_bool($item)) {
+        return boolval($item) ? 'true' : 'false';
     }
+
+    return (is_array($item)) ? json_encode($item, JSON_PRETTY_PRINT) : $item;
 }
 
 function convertToText(array $diff)
 {
     $converter = function ($diff, $depth = "") use (&$converter) {
-        $prefix = ['unchanged' => '   ', 'added' => ' + ', 'deleted' => ' - '];
+        $prefix = ['unchanged' => '    ', 'added' => '  + ', 'deleted' => '  - '];
 
         $prefix = array_map(function ($item) use ($depth) {
             return $depth . $item;
         }, $prefix);
 
         $result = array_reduce($diff, function ($output, $element) use (&$converter, $prefix) {
-            $currentState = $element['diff'];
-            if (!empty($currentState)) {
-                if (isset($currentState['value'])) {
-                    $value = getStringValue($currentState['value']);
+
+            $diff = $element['diff'];
+
+            if (!empty($diff)) {
+                if (isset($diff['value'])) {
+                    $value = getStringValue($diff['value']);
+
+                    if (is_array($diff['value'])) {
+                        $stringArray = explode("\n", $value);
+                        $res = array_map(function($item) use ($prefix) {
+                            return $prefix['unchanged'] . str_replace('"', "", $item);
+                        }, $stringArray);
+                        $res[0] = '{';
+                        $value = implode("\n", $res);
+                    }
+
                 } else {
-                    $oldValue = getStringValue($currentState['oldValue']);
-                    $newValue = getStringValue($currentState['newValue']);
+                    $oldValue = getStringValue($diff['oldValue']);
+                    $newValue = getStringValue($diff['newValue']);
                 }
 
-                if ($currentState['itemState'] === 'changed') {
-                    $output .= "{$prefix['deleted']}{$element['name']}: $oldValue\n";
+                if ($diff['itemState'] === 'changed') {
                     $output .= "{$prefix['added']}{$element['name']}: $newValue\n";
+                    $output .= "{$prefix['deleted']}{$element['name']}: $oldValue\n";
                 } else {
-                    $output .= "{$prefix[$currentState['itemState']]}{$element['name']}: $value\n";
+                    $output .= "{$prefix[$diff['itemState']]}{$element['name']}: $value\n";
                 }
             }
 

@@ -2,22 +2,20 @@
 
 namespace Differ\Formatters\json;
 
-use function Differ\Formatters\pretty\getStringValue;
-
 function convertToJson(array $diff)
 {
     $converter = function ($diff) use (&$converter) {
         $result = array_reduce($diff, function ($output, $element) use (&$converter) {
             $state = $element['diff'];
-
+            /* ПЕРВАЯ АБСТРАКЦИЯ == ЧТЕНИЕ ДИФА */
             if (!empty($state)) {
                 if (isset($state['value'])) {
-                    $value = getStringValue($state['value']);
+                    $value = $state['value'];
                 } else {
-                    $oldValue = getStringValue($state['oldValue']);
-                    $newValue = getStringValue($state['newValue']);
+                    $oldValue = $state['oldValue'];
+                    $newValue = $state['newValue'];
                 }
-
+                // ВТОРАЯ АБСТРАЦИЯ == ФОРМИРОВАНИЕ ВЫВОДА
                 if ($state['itemState'] === 'changed') {
                     $output[$element['name']] = [['oldValue' => $oldValue, 'newValue' => $newValue], 'changed'];
                 } elseif ($state['itemState'] === 'added') {

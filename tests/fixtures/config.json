@@ -1,4 +1,4 @@
-s:749:"{
+{
     "common": {
         "setting1": "Value 1",
         "setting2": [
@@ -7,7 +7,7 @@ s:749:"{
         ],
         "setting3": true,
         "setting6": [
-            "{\"key\":\"value\"}",
+            {"key":"value"},
             "removed"
         ],
         "setting4": [
@@ -15,7 +15,7 @@ s:749:"{
             "added"
         ],
         "setting5": [
-            "{\"key5\":\"value5\"}",
+            {"key5":"value5"},
             "added"
         ]
     },
@@ -30,11 +30,11 @@ s:749:"{
         "foo": "bar"
     },
     "group2": [
-        "{\"abc\":\"12345\"}",
+        {"abc":"12345"},
         "removed"
     ],
     "group3": [
-        "{\"fee\":\"100500\"}",
+        {"fee":"100500"},
         "added"
     ]
-}";
+}

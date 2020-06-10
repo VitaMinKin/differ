@@ -21,7 +21,7 @@ function yamlParse($yml)
     return (array) $parsed;
 }
 
-function parseConfig($file)
+function parseConfig(array $file)
 {
     $extension = $file['extension'];
     $content = $file['content'];

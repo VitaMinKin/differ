@@ -32,9 +32,7 @@ class DifferTest extends TestCase
 
     public function testConvertToText()
     {
-        $actualData = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
-        //$expected = unserialize($actualData);
-        $expected = $actualData;
+        $expected = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
 
         $ast = \Differ\getAst($this->firstFile, $this->secondFile);
         $actual = \Differ\Formatters\pretty\convertToText($ast);
@@ -53,18 +51,17 @@ class DifferTest extends TestCase
 
     public function testConvertToJson()
     {
-        $data = file_get_contents(__DIR__ . '/fixtures/jsonNested.fmt');
-        $expected = unserialize($data);
-
+        $expected = __DIR__ . '/fixtures/config.json';
         $ast = \Differ\getAst($this->firstFile, $this->secondFile);
         $actual = \Differ\Formatters\json\convertToJson($ast);
-        $this->assertEquals($expected, $actual);
+
+        $this->assertJsonStringEqualsJsonFile($expected, $actual);
     }
 
     public function testRender()
     {
         $data = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
-        //$expected = unserialize($data);
+
         $expected = $data;
 
         $diff = \Differ\getAst($this->firstFile, $this->secondFile);
