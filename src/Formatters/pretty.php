@@ -2,13 +2,26 @@
 
 namespace Differ\Formatters\pretty;
 
-function getStringValue($item)
+function getFormattedStringValue($item, $depth)
 {
     if (is_bool($item)) {
         return boolval($item) ? 'true' : 'false';
     }
 
-    return (is_array($item)) ? json_encode($item, JSON_PRETTY_PRINT) : $item;
+    if (is_array($item)) {
+        $preResult = json_encode($item, JSON_PRETTY_PRINT);
+
+        $listOfStrings = explode("\n", $preResult);
+        $addPadding = array_map(function ($elem) use ($depth) {
+            return $depth . str_replace('"', "", $elem);
+        }, $listOfStrings);
+        $addPadding[0] = '{';
+
+        $result = implode("\n", $addPadding);
+        return $result;
+    }
+
+    return $item;
 }
 
 function convertToText(array $diff)
@@ -23,23 +36,14 @@ function convertToText(array $diff)
         $result = array_reduce($diff, function ($output, $element) use (&$converter, $prefix) {
 
             $diff = $element['diff'];
+            $depth = $prefix['unchanged'];
 
             if (!empty($diff)) {
                 if (isset($diff['value'])) {
-                    $value = getStringValue($diff['value']);
-
-                    if (is_array($diff['value'])) {
-                        $stringArray = explode("\n", $value);
-                        $res = array_map(function($item) use ($prefix) {
-                            return $prefix['unchanged'] . str_replace('"', "", $item);
-                        }, $stringArray);
-                        $res[0] = '{';
-                        $value = implode("\n", $res);
-                    }
-
+                    $value = getFormattedStringValue($diff['value'], $depth);
                 } else {
-                    $oldValue = getStringValue($diff['oldValue']);
-                    $newValue = getStringValue($diff['newValue']);
+                    $oldValue = getFormattedStringValue($diff['oldValue'], $depth);
+                    $newValue = getFormattedStringValue($diff['newValue'], $depth);
                 }
 
                 if ($diff['itemState'] === 'changed') {
@@ -51,9 +55,9 @@ function convertToText(array $diff)
             }
 
             if (!empty($element['children'])) {
-                $output .= "{$prefix['unchanged']}{$element['name']}: {\n";
-                $output .= $converter($element['children'], $prefix['unchanged']);
-                $output .= "{$prefix['unchanged']}}\n";
+                $output .= "{$depth}{$element['name']}: {\n";
+                $output .= $converter($element['children'], $depth);
+                $output .= "{$depth}}\n";
             }
 
             return $output;

@@ -5,10 +5,10 @@ namespace Differ;
 use function Differ\loader\readFromFile;
 use function Differ\parsers\parseConfig;
 
-function getAst(array $firstConfig, array $secondConfig)
+function getAst(array $firstConfig, array $secondConfig) //buildDiff???
 {
     $ast = function ($firstConfig, $secondConfig) use (&$ast) {
-        $configNames = array_keys(array_merge($firstConfig, $secondConfig));
+        $configKeys = array_keys(array_merge($firstConfig, $secondConfig));
 
         return array_map(function ($elementName) use ($firstConfig, $secondConfig, &$ast) {
             $resultParameter = ['name' => $elementName, 'diff' => [], 'children' => []];
@@ -49,7 +49,7 @@ function getAst(array $firstConfig, array $secondConfig)
                 ];
             }
             return $resultParameter;
-        }, $configNames);
+        }, $configKeys);
     };
 
     return $ast($firstConfig, $secondConfig);
