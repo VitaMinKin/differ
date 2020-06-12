@@ -4,43 +4,36 @@ namespace Differ\Formatters\plain;
 
 function isComplexValue($item)
 {
-    if (is_array($item)) {
-        return true;
-    } else {
-        return false;
-    }
+    return is_array($item);
 }
 
 function convertToPlain(array $diff)
 {
     $converter = function ($diff, $parentName = '') use (&$converter) {
-        $result = array_reduce($diff, function ($output, $element) use (&$converter, $parentName) {
-            $сompoundParameterName = "$parentName{$element['name']}";
 
-            $condition = $element['diff'];
+        $result = array_reduce($diff, function ($outputString, $element) use (&$converter, $parentName) {
 
-            if (!empty($condition)) {
-                if (isset($condition['value'])) {
-                    $value = (isComplexValue($condition['value'])) ? 'complex value' : $condition['value'];
-                } else {
-                    $oldValue = (isComplexValue($condition['oldValue'])) ? 'complex value' : $condition['oldValue'];
-                    $newValue = (isComplexValue($condition['newValue'])) ? 'complex value' : $condition['newValue'];
-                }
+            ['name' => $elementName, 'diff' => $elementDiff, 'children' => $elementChildren] = $element;
+            $сompoundParameterName = ($parentName == '') ? $elementName : "$parentName.$elementName";
 
-                if ($condition['itemState'] === 'changed') {
-                    $output .= "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'" . "\n";
-                } elseif ($condition['itemState'] === 'added') {
-                    $output .= "Property '$сompoundParameterName' was added with value: '$value'" . "\n";
-                } elseif ($condition['itemState'] === 'deleted') {
-                    $output .= "Property '$сompoundParameterName' was removed" . "\n";
+            if (!empty($elementDiff)) {
+                if ($elementDiff['itemState'] === 'changed') {
+                    $oldValue = (isComplexValue($elementDiff['oldValue'])) ? 'complex value' : $elementDiff['oldValue'];
+                    $newValue = (isComplexValue($elementDiff['newValue'])) ? 'complex value' : $elementDiff['newValue'];
+                    $outputString .= "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'" . "\n";
+                } elseif ($elementDiff['itemState'] === 'added') {
+                    $value = (isComplexValue($elementDiff['value'])) ? 'complex value' : $elementDiff['value'];
+                    $outputString .= "Property '$сompoundParameterName' was added with value: '$value'" . "\n";
+                } elseif ($elementDiff['itemState'] === 'deleted') {
+                    $outputString .= "Property '$сompoundParameterName' was removed" . "\n";
                 }
             }
 
-            if (!empty($element['children'])) {
-                $output .= $converter($element['children'], "{$сompoundParameterName}.");
+            if (!empty($elementChildren)) {
+                $outputString .= $converter($elementChildren, $сompoundParameterName);
             }
 
-            return $output;
+            return $outputString;
         }, '');
         return $result;
     };

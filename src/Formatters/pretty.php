@@ -33,34 +33,30 @@ function convertToText(array $diff)
             return $depth . $item;
         }, $prefix);
 
-        $result = array_reduce($diff, function ($output, $element) use (&$converter, $prefix) {
+        $result = array_reduce($diff, function ($outputString, $element) use (&$converter, $prefix) {
 
-            $diff = $element['diff'];
-            $depth = $prefix['unchanged'];
+            ['name' => $elementName, 'diff' => $elementDiff, 'children' => $elementChildren] = $element;
+            ['unchanged' => $depth, 'added' => $added, 'deleted' => $deleted] = $prefix;
 
-            if (!empty($diff)) {
-                if (isset($diff['value'])) {
-                    $value = getFormattedStringValue($diff['value'], $depth);
+            if (!empty($elementDiff)) {
+                if ($elementDiff['itemState'] === 'changed') {
+                    $oldValue = getFormattedStringValue($elementDiff['oldValue'], $depth);
+                    $newValue = getFormattedStringValue($elementDiff['newValue'], $depth);
+                    $outputString .= "{$added}{$elementName}: $newValue\n";
+                    $outputString .= "{$deleted}{$elementName}: $oldValue\n";
                 } else {
-                    $oldValue = getFormattedStringValue($diff['oldValue'], $depth);
-                    $newValue = getFormattedStringValue($diff['newValue'], $depth);
-                }
-
-                if ($diff['itemState'] === 'changed') {
-                    $output .= "{$prefix['added']}{$element['name']}: $newValue\n";
-                    $output .= "{$prefix['deleted']}{$element['name']}: $oldValue\n";
-                } else {
-                    $output .= "{$prefix[$diff['itemState']]}{$element['name']}: $value\n";
+                    $value = getFormattedStringValue($elementDiff['value'], $depth);
+                    $outputString .= "{$prefix[$elementDiff['itemState']]}{$elementName}: $value\n";
                 }
             }
 
-            if (!empty($element['children'])) {
-                $output .= "{$depth}{$element['name']}: {\n";
-                $output .= $converter($element['children'], $depth);
-                $output .= "{$depth}}\n";
+            if (!empty($elementChildren)) {
+                $outputString .= "{$depth}{$elementName}: {\n";
+                $outputString .= $converter($elementChildren, $depth);
+                $outputString .= "$depth}\n";
             }
 
-            return $output;
+            return $outputString;
         }, '');
 
         return $result;
