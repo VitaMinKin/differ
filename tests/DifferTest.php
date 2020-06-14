@@ -21,12 +21,12 @@ class DifferTest extends TestCase
         $this->secondFile = json_decode($secondFile, true);
     }
 
-    public function testGetAst()
+    public function testBuildDiff()
     {
         $data = file_get_contents(__DIR__ . '/fixtures/AST.array');
         $expected = unserialize($data);
 
-        $actual = \Differ\getAst($this->firstFile, $this->secondFile);
+        $actual = \Differ\buildDiff($this->firstFile, $this->secondFile);
         $this->assertEquals($expected, $actual);
     }
 
@@ -34,8 +34,8 @@ class DifferTest extends TestCase
     {
         $expected = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
 
-        $ast = \Differ\getAst($this->firstFile, $this->secondFile);
-        $actual = \Differ\Formatters\pretty\convertToText($ast);
+        $diff = \Differ\buildDiff($this->firstFile, $this->secondFile);
+        $actual = \Differ\Formatters\pretty\convertToText($diff);
 
         $this->assertEquals($expected, $actual);
     }
@@ -43,17 +43,17 @@ class DifferTest extends TestCase
     public function testConvertToPlain()
     {
         $expected = file_get_contents(__DIR__ . '/fixtures/plain.fmt');
-        $ast = \Differ\getAst($this->firstFile, $this->secondFile);
+        $diff = \Differ\buildDiff($this->firstFile, $this->secondFile);
 
-        $actual = \Differ\Formatters\plain\convertToPlain($ast);
+        $actual = \Differ\Formatters\plain\convertToPlain($diff);
         $this->assertEquals($expected, $actual);
     }
 
     public function testConvertToJson()
     {
         $expected = __DIR__ . '/fixtures/config.json';
-        $ast = \Differ\getAst($this->firstFile, $this->secondFile);
-        $actual = \Differ\Formatters\json\convertToJson($ast);
+        $diff = \Differ\buildDiff($this->firstFile, $this->secondFile);
+        $actual = \Differ\Formatters\json\convertToJson($diff);
 
         $this->assertJsonStringEqualsJsonFile($expected, $actual);
     }
@@ -64,7 +64,7 @@ class DifferTest extends TestCase
 
         $expected = $data;
 
-        $diff = \Differ\getAst($this->firstFile, $this->secondFile);
+        $diff = \Differ\buildDiff($this->firstFile, $this->secondFile);
 
         $actual = \Differ\renderer\render($diff);
         $this->assertEquals($expected, $actual);
