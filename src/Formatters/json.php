@@ -2,6 +2,11 @@
 
 namespace Differ\Formatters\json;
 
+use const Differ\DIFF_ELEMENT_ADDED;
+use const Differ\DIFF_ELEMENT_CHANGED;
+use const Differ\DIFF_ELEMENT_UNCHANGED;
+use const Differ\DIFF_ELEMENT_REMOVED;
+
 function convertToJson(array $diff)
 {
     $converter = function ($diff) use (&$converter) {
@@ -9,19 +14,25 @@ function convertToJson(array $diff)
             ['name' => $elementName, 'diff' => $elementDiff, 'children' => $elementChildren] = $element;
 
             if (!empty($elementDiff)) {
-                if ($elementDiff['itemState'] === 'changed') {
+                if ($elementDiff['itemState'] === DIFF_ELEMENT_CHANGED) {
                     $oldValue = $elementDiff['oldValue'];
                     $newValue = $elementDiff['newValue'];
-                    $output[$elementName] = [['oldValue' => $oldValue, 'newValue' => $newValue], 'changed'];
-                } elseif ($elementDiff['itemState'] === 'added') {
-                    $value = $elementDiff['value'];
-                    $output[$elementName] = [$value, 'added'];
-                } elseif ($elementDiff['itemState'] === 'deleted') {
-                    $value = $elementDiff['value'];
-                    $output[$elementName] = [$value, 'removed'];
                 } else {
                     $value = $elementDiff['value'];
-                    $output[$element['name']] = $value;
+                }
+
+                switch ($elementDiff['itemState']) {
+                    case DIFF_ELEMENT_CHANGED:
+                        $output[$elementName] = [['oldValue' => $oldValue, 'newValue' => $newValue], DIFF_ELEMENT_CHANGED];
+                        break;
+                    case DIFF_ELEMENT_ADDED:
+                        $output[$elementName] = [$value, DIFF_ELEMENT_ADDED];
+                        break;
+                    case DIFF_ELEMENT_REMOVED:
+                        $output[$elementName] = [$value, 'removed'];
+                        break;
+                    default:
+                        $output[$element['name']] = $value;
                 }
             }
 

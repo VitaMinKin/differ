@@ -2,6 +2,11 @@
 
 namespace Differ\Formatters\pretty;
 
+use const Differ\DIFF_ELEMENT_ADDED;
+use const Differ\DIFF_ELEMENT_CHANGED;
+use const Differ\DIFF_ELEMENT_UNCHANGED;
+use const Differ\DIFF_ELEMENT_REMOVED;
+
 function getFormattedStringValue($item, $depth)
 {
     if (is_bool($item)) {
@@ -27,7 +32,7 @@ function getFormattedStringValue($item, $depth)
 function convertToText(array $diff)
 {
     $converter = function ($diff, $depth = "") use (&$converter) {
-        $prefix = ['unchanged' => '    ', 'added' => '  + ', 'deleted' => '  - '];
+        $prefix = [DIFF_ELEMENT_UNCHANGED => '    ', DIFF_ELEMENT_ADDED => '  + ', DIFF_ELEMENT_REMOVED => '  - '];
 
         $prefix = array_map(function ($item) use ($depth) {
             return $depth . $item;
@@ -36,10 +41,10 @@ function convertToText(array $diff)
         $result = array_reduce($diff, function ($outputString, $element) use (&$converter, $prefix) {
 
             ['name' => $elementName, 'diff' => $elementDiff, 'children' => $elementChildren] = $element;
-            ['unchanged' => $depth, 'added' => $added, 'deleted' => $deleted] = $prefix;
+            [DIFF_ELEMENT_UNCHANGED => $depth, DIFF_ELEMENT_ADDED => $added, DIFF_ELEMENT_REMOVED => $deleted] = $prefix;
 
             if (!empty($elementDiff)) {
-                if ($elementDiff['itemState'] === 'changed') {
+                if ($elementDiff['itemState'] === DIFF_ELEMENT_CHANGED) {
                     $oldValue = getFormattedStringValue($elementDiff['oldValue'], $depth);
                     $newValue = getFormattedStringValue($elementDiff['newValue'], $depth);
                     $outputString .= "{$added}{$elementName}: $newValue\n";

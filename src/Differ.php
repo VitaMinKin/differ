@@ -5,19 +5,24 @@ namespace Differ;
 use function Differ\loader\readFromFile;
 use function Differ\parsers\parseConfig;
 
-function getAst(array $firstConfig, array $secondConfig) //buildDiff???
+const DIFF_ELEMENT_ADDED = 'added';
+const DIFF_ELEMENT_REMOVED = 'deleted';
+const DIFF_ELEMENT_CHANGED = 'changed';
+const DIFF_ELEMENT_UNCHANGED = 'unchanged';
+
+function buildDiff(array $firstConfig, array $secondConfig)
 {
-    $ast = function ($firstConfig, $secondConfig) use (&$ast) {
+    $getDiff = function ($firstConfig, $secondConfig) use (&$getDiff) {
         $configKeys = array_keys(array_merge($firstConfig, $secondConfig));
 
-        return array_map(function ($elementName) use ($firstConfig, $secondConfig, &$ast) {
+        return array_map(function ($elementName) use ($firstConfig, $secondConfig, &$getDiff) {
             $resultParameter = ['name' => $elementName, 'diff' => [], 'children' => []];
             $comparedParameter1 = isset($firstConfig[$elementName]) ? $firstConfig[$elementName] : null;
             $comparedParameter2 = isset($secondConfig[$elementName]) ? $secondConfig[$elementName] : null;
 
             if (!isset($comparedParameter1)) {
                 $resultParameter['diff'] = [
-                    'itemState' => 'added', //ЭТО КОНСТАНТЫ!!!
+                    'itemState' => DIFF_ELEMENT_ADDED, //ЭТО КОНСТАНТЫ!!!
                     'value' => $comparedParameter2
                 ];
                 return $resultParameter;
@@ -25,7 +30,7 @@ function getAst(array $firstConfig, array $secondConfig) //buildDiff???
 
             if (!isset($comparedParameter2)) {
                 $resultParameter['diff'] = [
-                    'itemState' => 'deleted',
+                    'itemState' => DIFF_ELEMENT_REMOVED,
                     'value' => $comparedParameter1
                 ];
                 return $resultParameter;
@@ -33,17 +38,17 @@ function getAst(array $firstConfig, array $secondConfig) //buildDiff???
 
             if ($comparedParameter1 === $comparedParameter2) {
                 $resultParameter['diff'] = [
-                    'itemState' => 'unchanged',
+                    'itemState' => DIFF_ELEMENT_UNCHANGED,
                     'value' => $comparedParameter1
                 ];
                 return $resultParameter;
             }
 
             if ((is_array($comparedParameter1)) && (is_array($comparedParameter2))) {
-                $resultParameter['children'] = $ast($comparedParameter1, $comparedParameter2);
+                $resultParameter['children'] = $getDiff($comparedParameter1, $comparedParameter2);
             } else {
                 $resultParameter['diff'] = [
-                    'itemState' => 'changed',
+                    'itemState' => DIFF_ELEMENT_CHANGED,
                     'oldValue' => $comparedParameter1,
                     'newValue' => $comparedParameter2
                 ];
@@ -52,7 +57,7 @@ function getAst(array $firstConfig, array $secondConfig) //buildDiff???
         }, $configKeys);
     };
 
-    return $ast($firstConfig, $secondConfig);
+    return $getDiff($firstConfig, $secondConfig);
 }
 
 function genDiff($fileLink1, $fileLink2, $outputFormat = 'default')
@@ -79,8 +84,8 @@ function genDiff($fileLink1, $fileLink2, $outputFormat = 'default')
         exit;
     }
 
-    $ast = getAst($firstConfig, $secondConfig);
+    $diff = buildDiff($firstConfig, $secondConfig);
 
-    $render = \Differ\renderer\render($ast, $outputFormat);
+    $render = \Differ\renderer\render($diff, $outputFormat);
     return $render;
 }
