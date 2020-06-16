@@ -12,29 +12,48 @@ class DifferTest extends TestCase
     private $firstFile;
     private $secondFile;
 
+    private function getFixturePath($fileName)
+    {
+        return __DIR__ . '/fixtures/' . $fileName;
+    }
+
+    private function readFile($filePath)
+    {
+        return trim(file_get_contents($filePath));
+    }
+
     protected function setUp(): void
     {
-        $firstFile = file_get_contents(__DIR__ . '/fixtures/beforeTree.json');
+        $firstFixturePath = $this->getFixturePath('beforeTree.json');
+        $firstFile = $this->readFile($firstFixturePath);
         $this->firstFile = json_decode($firstFile, true);
 
-        $secondFile = file_get_contents(__DIR__ . '/fixtures/afterTree.json');
+        $secondFixturePath = $this->getFixturePath('afterTree.json');
+        $secondFile = $this->readFile($secondFixturePath);
         $this->secondFile = json_decode($secondFile, true);
+    }
+
+    private function buildDiff()
+    {
+        return \Differ\buildDiff($this->firstFile, $this->secondFile);
     }
 
     public function testBuildDiff()
     {
-        $data = file_get_contents(__DIR__ . '/fixtures/AST.array');
+        $fixturePath = $this->getFixturePath('AST.array');
+        $data = $this->readFile($fixturePath);
         $expected = unserialize($data);
 
-        $actual = \Differ\buildDiff($this->firstFile, $this->secondFile);
+        $actual = $this->buildDiff();
         $this->assertEquals($expected, $actual);
     }
 
     public function testConvertToText()
     {
-        $expected = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
+        $fixturePath = $this->getFixturePath('prettyNested.txt');
+        $expected = $this->readFile($fixturePath);
 
-        $diff = \Differ\buildDiff($this->firstFile, $this->secondFile);
+        $diff = $this->buildDiff();
         $actual = \Differ\Formatters\pretty\convertToText($diff);
 
         $this->assertEquals($expected, $actual);
@@ -42,17 +61,20 @@ class DifferTest extends TestCase
 
     public function testConvertToPlain()
     {
-        $expected = file_get_contents(__DIR__ . '/fixtures/plain.fmt');
-        $diff = \Differ\buildDiff($this->firstFile, $this->secondFile);
+        $fixturePath = $this->getFixturePath('plain.txt');
+        $expected = $this->readFile($fixturePath);
 
+        $diff = $this->buildDiff();
         $actual = \Differ\Formatters\plain\convertToPlain($diff);
+
         $this->assertEquals($expected, $actual);
     }
 
     public function testConvertToJson()
     {
-        $expected = __DIR__ . '/fixtures/config.json';
-        $diff = \Differ\buildDiff($this->firstFile, $this->secondFile);
+        $expected = $this->getFixturePath('config.json');
+
+        $diff = $this->buildDiff();
         $actual = \Differ\Formatters\json\convertToJson($diff);
 
         $this->assertJsonStringEqualsJsonFile($expected, $actual);
@@ -60,11 +82,10 @@ class DifferTest extends TestCase
 
     public function testRender()
     {
-        $data = file_get_contents(__DIR__ . '/fixtures/prettyNested.fmt');
+        $fixturePath = $this->getFixturePath('prettyNested.txt');
+        $expected = $this->readFile($fixturePath);
 
-        $expected = $data;
-
-        $diff = \Differ\buildDiff($this->firstFile, $this->secondFile);
+        $diff = $this->buildDiff();
 
         $actual = \Differ\renderer\render($diff);
         $this->assertEquals($expected, $actual);
@@ -79,12 +100,21 @@ class DifferTest extends TestCase
 
     public function testGenDiff()
     {
-        $expected = file_get_contents(__DIR__ . '/fixtures/prettyPlain.fmt');
-        $actual = genDiff(__DIR__ . '/fixtures/before.json', __DIR__ . '/fixtures/after.json');
+        $fixturePath = $this->getFixturePath('prettyPlain.txt');
+        $expected = $this->readFile($fixturePath);
+
+        $firstConfig = $this->getFixturePath('before.json');
+        $secondConfig = $this->getFixturePath('after.json');
+        $actual = genDiff($firstConfig, $secondConfig);
+
         $this->assertEquals($expected, $actual);
 
-        $expected = file_get_contents(__DIR__ . '/fixtures/yamlPlain.fmt');
-        $actual = genDiff(__DIR__ . '/fixtures/before.yml', __DIR__ . '/fixtures/after.yml');
+        $fixturePath = $this->getFixturePath('yamlPlain.txt');
+        $expected = $this->readFile($fixturePath);
+        $firstConfig = $this->getFixturePath('before.yml');
+        $secondConfig = $this->getFixturePath('after.yml');
+
+        $actual = genDiff($firstConfig, $secondConfig);
         $this->assertEquals($expected, $actual);
     }
 }

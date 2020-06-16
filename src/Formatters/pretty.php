@@ -68,5 +68,5 @@ function convertToText(array $diff)
     };
 
     $outputString = $converter($diff);
-    return "{\n$outputString}\n";
+    return "{\n$outputString}";
 }

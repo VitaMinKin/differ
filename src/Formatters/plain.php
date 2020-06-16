@@ -45,5 +45,5 @@ function convertToPlain(array $diff)
         }, '');
         return $result;
     };
-    return $converter($diff);
+    return trim($converter($diff));
 }
