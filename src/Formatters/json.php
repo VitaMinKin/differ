@@ -23,7 +23,10 @@ function convertToJson(array $diff)
 
                 switch ($elementDiff['itemState']) {
                     case DIFF_ELEMENT_CHANGED:
-                        $output[$elementName] = [['oldValue' => $oldValue, 'newValue' => $newValue], DIFF_ELEMENT_CHANGED];
+                        $output[$elementName] = [
+                            ['oldValue' => $oldValue, 'newValue' => $newValue],
+                            DIFF_ELEMENT_CHANGED
+                        ];
                         break;
                     case DIFF_ELEMENT_ADDED:
                         $output[$elementName] = [$value, DIFF_ELEMENT_ADDED];

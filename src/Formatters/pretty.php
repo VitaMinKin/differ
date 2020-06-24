@@ -41,7 +41,11 @@ function convertToText(array $diff)
         $result = array_reduce($diff, function ($outputString, $element) use (&$converter, $prefix) {
 
             ['name' => $elementName, 'diff' => $elementDiff, 'children' => $elementChildren] = $element;
-            [DIFF_ELEMENT_UNCHANGED => $depth, DIFF_ELEMENT_ADDED => $added, DIFF_ELEMENT_REMOVED => $deleted] = $prefix;
+            [
+                DIFF_ELEMENT_UNCHANGED => $depth,
+                DIFF_ELEMENT_ADDED => $added,
+                DIFF_ELEMENT_REMOVED => $deleted
+            ] = $prefix;
 
             if (!empty($elementDiff)) {
                 if ($elementDiff['itemState'] === DIFF_ELEMENT_CHANGED) {

@@ -24,9 +24,12 @@ function convertToPlain(array $diff)
             if (!empty($elementDiff)) {
                 switch ($elementDiff['itemState']) {
                     case DIFF_ELEMENT_CHANGED:
-                        $oldValue = (isComplexValue($elementDiff['oldValue'])) ? 'complex value' : $elementDiff['oldValue'];
-                        $newValue = (isComplexValue($elementDiff['newValue'])) ? 'complex value' : $elementDiff['newValue'];
-                        $outputString .= "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'" . "\n";
+                        $before = $elementDiff['oldValue'];
+                        $after = $elementDiff['newValue'];
+                        $oldValue = (isComplexValue($before)) ? 'complex value' : $before;
+                        $newValue = (isComplexValue($after)) ? 'complex value' : $after;
+                        $outputString .= "Property '$сompoundParameterName' was changed. ";
+                        $outputString .= "From '$oldValue' to '$newValue'" . "\n";
                         break;
                     case DIFF_ELEMENT_ADDED:
                         $value = (isComplexValue($elementDiff['value'])) ? 'complex value' : $elementDiff['value'];
