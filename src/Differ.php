@@ -22,7 +22,7 @@ function buildDiff(array $firstConfig, array $secondConfig)
 
             if (!isset($comparedParameter1)) {
                 $resultParameter['diff'] = [
-                    'itemState' => DIFF_ELEMENT_ADDED, //ЭТО КОНСТАНТЫ!!!
+                    'itemState' => DIFF_ELEMENT_ADDED,
                     'value' => $comparedParameter2
                 ];
                 return $resultParameter;

@@ -73,8 +73,8 @@ class DifferTest extends TestCase
     public function testConvertToJson()
     {
         $expected = $this->getFixturePath('config.json');
-
         $diff = $this->buildDiff();
+
         $actual = \Differ\Formatters\json\convertToJson($diff);
 
         $this->assertJsonStringEqualsJsonFile($expected, $actual);
@@ -100,11 +100,12 @@ class DifferTest extends TestCase
 
     public function testGenDiff()
     {
-        $fixturePath = $this->getFixturePath('prettyPlain.txt');
+        $fixturePath = $this->getFixturePath('prettyNested.txt');
         $expected = $this->readFile($fixturePath);
 
-        $firstConfig = $this->getFixturePath('before.json');
-        $secondConfig = $this->getFixturePath('after.json');
+        $firstConfig = $this->getFixturePath('beforeTree.json');
+        $secondConfig = $this->getFixturePath('afterTree.json');
+
         $actual = genDiff($firstConfig, $secondConfig);
 
         $this->assertEquals($expected, $actual);
