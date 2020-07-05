@@ -20,28 +20,28 @@ class DifferTest extends TestCase
 
     public function testGenDiff()
     {
-        $firstConfig = $this->getFixturePath('beforeTree.json');
-        $secondConfig = $this->getFixturePath('afterTree.json');
+        $firstPathToConfig = $this->getFixturePath('beforeTree.json');
+        $secondPathToConfig = $this->getFixturePath('afterTree.json');
 
         $fixturePath = $this->getFixturePath('prettyNested.txt');
         $expected = $this->readConfig($fixturePath);
-        $actual = genDiff($firstConfig, $secondConfig);
+        $actual = genDiff($firstPathToConfig, $secondPathToConfig);
         $this->assertEquals($expected, $actual);
 
         $fixturePath = $this->getFixturePath('plain.txt');
         $expected = $this->readConfig($fixturePath);
-        $actual = genDiff($firstConfig, $secondConfig, 'plain');
+        $actual = genDiff($firstPathToConfig, $secondPathToConfig, 'plain');
         $this->assertEquals($expected, $actual);
 
         $expected = $this->getFixturePath('config.json');
-        $actual = genDiff($firstConfig, $secondConfig, 'json');
+        $actual = genDiff($firstPathToConfig, $secondPathToConfig, 'json');
         $this->assertJsonStringEqualsJsonFile($expected, $actual);
 
         $fixturePath = $this->getFixturePath('yamlPlain.txt');
-        $firstConfig = $this->getFixturePath('before.yml');
-        $secondConfig = $this->getFixturePath('after.yml');
+        $firstPathToConfig = $this->getFixturePath('before.yml');
+        $secondPathToConfig = $this->getFixturePath('after.yml');
         $expected = $this->readConfig($fixturePath);
-        $actual = genDiff($firstConfig, $secondConfig, 'errorRequest');
+        $actual = genDiff($firstPathToConfig, $secondPathToConfig, 'errorRequest');
         $this->assertEquals($expected, $actual);
     }
 }
