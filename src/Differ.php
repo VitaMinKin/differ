@@ -62,29 +62,17 @@ function buildDiff(array $firstConfig, array $secondConfig)
 
 function genDiff($fileLink1, $fileLink2, $outputFormat = 'default')
 {
-    try {
         $config1 = readFromFile($fileLink1);
         $config2 = readFromFile($fileLink2);
-    } catch (\Exception $e) {
-        printf($e->getMessage());
-        exit;
-    }
 
-    try {
         $firstConfig = parseConfig($config1);
-    } catch (\Exception $e) {
-        printf("\nError in file $fileLink1: {$e->getMessage()} \n");
-        exit;
-    }
-
-    try {
         $secondConfig = parseConfig($config2);
-    } catch (\Exception $e) {
-        printf("\nError in file $fileLink2: {$e->getMessage()} \n");
-        exit;
-    }
 
-    $diff = buildDiff($firstConfig, $secondConfig);
+    if (($firstConfig !== null) && ($secondConfig !== null)) {
+        $diff = buildDiff($firstConfig, $secondConfig);
+    } else {
+        throw new \Exception ("invalid configuration data!");
+    }
 
     $render = \Differ\renderer\render($diff, $outputFormat);
     return $render;
