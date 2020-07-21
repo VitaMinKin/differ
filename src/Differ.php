@@ -34,7 +34,7 @@ function buildDiff(array $firstConfig, array $secondConfig)
 
             if ($comparedParameter1 === $comparedParameter2) {
                 $resultParameter['itemState'] = DIFF_ELEMENT_UNCHANGED;
-                $resultParameter[['value'] = $comparedParameter1;
+                $resultParameter['value'] = $comparedParameter1;
                 return $resultParameter;
             }
 
