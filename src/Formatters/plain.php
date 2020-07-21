@@ -23,20 +23,20 @@ function convertToPlain(array $diff)
 
             if (isset($element['itemState'])) {
                 switch ($element['itemState']) {
-                        case DIFF_ELEMENT_CHANGED:
-                            $before = $element['oldValue'];
-                            $after = $element['newValue'];
-                            $oldValue = (isComplexValue($before)) ? 'complex value' : $before;
-                            $newValue = (isComplexValue($after)) ? 'complex value' : $after;
-                            $outputString .= "Property '$сompoundParameterName' was changed. ";
-                            $outputString .= "From '$oldValue' to '$newValue'" . "\n";
-                            break;
-                        case DIFF_ELEMENT_ADDED:
-                            $value = (isComplexValue($element['value'])) ? 'complex value' : $element['value'];
-                            $outputString .= "Property '$сompoundParameterName' was added with value: '$value'" . "\n";
-                            break;
-                        case DIFF_ELEMENT_REMOVED:
-                            $outputString .= "Property '$сompoundParameterName' was removed" . "\n";
+                    case DIFF_ELEMENT_CHANGED:
+                        $before = $element['oldValue'];
+                        $after = $element['newValue'];
+                        $oldValue = (isComplexValue($before)) ? 'complex value' : $before;
+                        $newValue = (isComplexValue($after)) ? 'complex value' : $after;
+                        $outputString .= "Property '$сompoundParameterName' was changed. ";
+                        $outputString .= "From '$oldValue' to '$newValue'" . "\n";
+                        break;
+                    case DIFF_ELEMENT_ADDED:
+                        $value = (isComplexValue($element['value'])) ? 'complex value' : $element['value'];
+                        $outputString .= "Property '$сompoundParameterName' was added with value: '$value'" . "\n";
+                        break;
+                    case DIFF_ELEMENT_REMOVED:
+                        $outputString .= "Property '$сompoundParameterName' was removed" . "\n";
                 }
             }
 

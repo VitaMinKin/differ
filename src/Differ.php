@@ -63,7 +63,7 @@ function genDiff($fileLink1, $fileLink2, $outputFormat = 'default')
     if (($firstConfig !== null) && ($secondConfig !== null)) {
         $diff = buildDiff($firstConfig, $secondConfig);
     } else {
-        throw new \Exception ("invalid configuration data!");
+        throw new \Exception("invalid configuration data!");
     }
 
     $render = \Differ\renderer\render($diff, $outputFormat);

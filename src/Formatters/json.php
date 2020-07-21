@@ -14,7 +14,6 @@ function convertToJson(array $diff)
             ['name' => $elementName, 'children' => $elementChildren] = $element;
 
             if (isset($element['itemState'])) {
-
                 if ($element['itemState'] === DIFF_ELEMENT_CHANGED) {
                     $oldValue = $element['oldValue'];
                     $newValue = $element['newValue'];
