@@ -16,42 +16,34 @@ function buildDiff(array $firstConfig, array $secondConfig)
         $configKeys = array_keys(array_merge($firstConfig, $secondConfig));
 
         return array_map(function ($elementName) use ($firstConfig, $secondConfig, &$getDiff) {
-            $resultParameter = ['name' => $elementName, 'diff' => [], 'children' => []];
+            $resultParameter = ['name' => $elementName, 'children' => []];
             $comparedParameter1 = isset($firstConfig[$elementName]) ? $firstConfig[$elementName] : null;
             $comparedParameter2 = isset($secondConfig[$elementName]) ? $secondConfig[$elementName] : null;
 
             if (!isset($comparedParameter1)) {
-                $resultParameter['diff'] = [
-                    'itemState' => DIFF_ELEMENT_ADDED,
-                    'value' => $comparedParameter2
-                ];
+                $resultParameter['itemState'] = DIFF_ELEMENT_ADDED;
+                $resultParameter['value'] = $comparedParameter2;
                 return $resultParameter;
             }
 
             if (!isset($comparedParameter2)) {
-                $resultParameter['diff'] = [
-                    'itemState' => DIFF_ELEMENT_REMOVED,
-                    'value' => $comparedParameter1
-                ];
+                $resultParameter['itemState'] = DIFF_ELEMENT_REMOVED;
+                $resultParameter['value'] = $comparedParameter1;
                 return $resultParameter;
             }
 
             if ($comparedParameter1 === $comparedParameter2) {
-                $resultParameter['diff'] = [
-                    'itemState' => DIFF_ELEMENT_UNCHANGED,
-                    'value' => $comparedParameter1
-                ];
+                $resultParameter['itemState'] = DIFF_ELEMENT_UNCHANGED;
+                $resultParameter[['value'] = $comparedParameter1;
                 return $resultParameter;
             }
 
             if ((is_array($comparedParameter1)) && (is_array($comparedParameter2))) {
                 $resultParameter['children'] = $getDiff($comparedParameter1, $comparedParameter2);
             } else {
-                $resultParameter['diff'] = [
-                    'itemState' => DIFF_ELEMENT_CHANGED,
-                    'oldValue' => $comparedParameter1,
-                    'newValue' => $comparedParameter2
-                ];
+                $resultParameter['itemState'] = DIFF_ELEMENT_CHANGED;
+                $resultParameter['oldValue'] = $comparedParameter1;
+                $resultParameter['newValue'] = $comparedParameter2;
             }
             return $resultParameter;
         }, $configKeys);

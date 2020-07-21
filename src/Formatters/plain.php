@@ -18,26 +18,24 @@ function convertToPlain(array $diff)
 
         $result = array_reduce($diff, function ($outputString, $element) use (&$converter, $parentName) {
 
-            ['name' => $elementName, 'diff' => $elementDiff, 'children' => $elementChildren] = $element;
+            ['name' => $elementName, 'children' => $elementChildren] = $element;
             $сompoundParameterName = ($parentName == '') ? $elementName : "$parentName.$elementName";
 
-            if (!empty($elementDiff)) {
-                switch ($elementDiff['itemState']) {
+            switch ($element['itemState']) {
                     case DIFF_ELEMENT_CHANGED:
-                        $before = $elementDiff['oldValue'];
-                        $after = $elementDiff['newValue'];
+                        $before = $element['oldValue'];
+                        $after = $element['newValue'];
                         $oldValue = (isComplexValue($before)) ? 'complex value' : $before;
                         $newValue = (isComplexValue($after)) ? 'complex value' : $after;
                         $outputString .= "Property '$сompoundParameterName' was changed. ";
                         $outputString .= "From '$oldValue' to '$newValue'" . "\n";
                         break;
                     case DIFF_ELEMENT_ADDED:
-                        $value = (isComplexValue($elementDiff['value'])) ? 'complex value' : $elementDiff['value'];
+                        $value = (isComplexValue($element['value'])) ? 'complex value' : $element['value'];
                         $outputString .= "Property '$сompoundParameterName' was added with value: '$value'" . "\n";
                         break;
                     case DIFF_ELEMENT_REMOVED:
                         $outputString .= "Property '$сompoundParameterName' was removed" . "\n";
-                }
             }
 
             if (!empty($elementChildren)) {
