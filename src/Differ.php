@@ -33,7 +33,7 @@ function buildDiff(array $firstConfig, array $secondConfig)
             }
 
             if ($comparedParameter1 === $comparedParameter2) {
-                $resultParameter['itemState'] = DIFF_ELEMENT_UNCHANGED;
+                 $resultParameter['itemState'] = DIFF_ELEMENT_UNCHANGED;
                 $resultParameter['value'] = $comparedParameter1;
                 return $resultParameter;
             }
@@ -52,20 +52,16 @@ function buildDiff(array $firstConfig, array $secondConfig)
     return $getDiff($firstConfig, $secondConfig);
 }
 
-function genDiff($fileLink1, $fileLink2, $outputFormat = 'default')
+function genDiff($fileLink1, $fileLink2, $outputFormat = 'text')
 {
-        $config1 = readFromFile($fileLink1);
-        $config2 = readFromFile($fileLink2);
+    $firstConfigContent = readFromFile($fileLink1);
+    $secondConfigContent = readFromFile($fileLink2);
 
-        $firstConfig = parseConfig($config1);
-        $secondConfig = parseConfig($config2);
+    $firstConfig = parseConfig($firstConfigContent);
+    $secondConfig = parseConfig($secondConfigContent);
 
-    if (($firstConfig !== null) && ($secondConfig !== null)) {
-        $diff = buildDiff($firstConfig, $secondConfig);
-    } else {
-        throw new \Exception("invalid configuration data!");
-    }
+    $diff = buildDiff($firstConfig, $secondConfig);
 
-    $render = \Differ\renderer\render($diff, $outputFormat);
-    return $render;
+    $difference = \Differ\renderer\render($diff, $outputFormat);
+    return $difference;
 }
