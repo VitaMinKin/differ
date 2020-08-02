@@ -12,3 +12,10 @@ function readFromFile($fileLink)
 
     return file_get_contents($pathToFile);
 }
+
+function getExtension(string $filePath)
+{
+    $splittenPath = explode('.', $filePath);
+    $extension = $splittenPath[count($splittenPath) - 1];
+    return $extension;
+}

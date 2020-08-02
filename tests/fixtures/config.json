@@ -1,40 +1,81 @@
-{
-    "common": {
-        "setting1": "Value 1",
-        "setting2": [
-            "200",
-            "removed"
-        ],
-        "setting3": true,
-        "setting6": [
-            {"key":"value"},
-            "removed"
-        ],
-        "setting4": [
-            "blah blah",
-            "added"
-        ],
-        "setting5": [
-            {"key5":"value5"},
-            "added"
+[
+    {
+        "name": "common",
+        "children": [
+            {
+                "name": "setting1",
+                "children": [],
+                "itemState": "unchanged",
+                "value": "Value 1"
+            },
+            {
+                "name": "setting2",
+                "children": [],
+                "itemState": "deleted",
+                "value": "200"
+            },
+            {
+                "name": "setting3",
+                "children": [],
+                "itemState": "unchanged",
+                "value": true
+            },
+            {
+                "name": "setting6",
+                "children": [],
+                "itemState": "deleted",
+                "value": {
+                    "key": "value"
+                }
+            },
+            {
+                "name": "setting4",
+                "children": [],
+                "itemState": "added",
+                "value": "blah blah"
+            },
+            {
+                "name": "setting5",
+                "children": [],
+                "itemState": "added",
+                "value": {
+                    "key5": "value5"
+                }
+            }
         ]
     },
-    "group1": {
-        "baz": [
+    {
+        "name": "group1",
+        "children": [
             {
+                "name": "baz",
+                "children": [],
+                "itemState": "changed",
                 "oldValue": "bas",
                 "newValue": "bars"
             },
-            "changed"
-        ],
-        "foo": "bar"
+            {
+                "name": "foo",
+                "children": [],
+                "itemState": "unchanged",
+                "value": "bar"
+            }
+        ]
     },
-    "group2": [
-        {"abc":"12345"},
-        "removed"
-    ],
-    "group3": [
-        {"fee":"100500"},
-        "added"
-    ]
-}
+    {
+        "name": "group2",
+        "children": [],
+        "itemState": "deleted",
+        "value": {
+            "abc": "12345"
+        }
+    },
+    {
+        "name": "group3",
+        "children": [],
+        "itemState": "added",
+        "value": {
+            "fee": "100500"
+        }
+    }
+]

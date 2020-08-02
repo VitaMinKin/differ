@@ -2,6 +2,9 @@
 
 namespace Differ;
 
+use stdClass;
+
+use function Differ\loader\getExtension;
 use function Differ\loader\readFromFile;
 use function Differ\parsers\parseConfig;
 
@@ -16,36 +19,36 @@ function buildDiff(array $firstConfig, array $secondConfig)
         $configKeys = array_keys(array_merge($firstConfig, $secondConfig));
 
         return array_map(function ($elementName) use ($firstConfig, $secondConfig, &$getDiff) {
-            $resultParameter = ['name' => $elementName, 'children' => []];
+            $node = ['name' => $elementName, 'children' => []];
             $comparedParameter1 = isset($firstConfig[$elementName]) ? $firstConfig[$elementName] : null;
             $comparedParameter2 = isset($secondConfig[$elementName]) ? $secondConfig[$elementName] : null;
 
             if (!isset($comparedParameter1)) {
-                $resultParameter['itemState'] = DIFF_ELEMENT_ADDED;
-                $resultParameter['value'] = $comparedParameter2;
-                return $resultParameter;
+                $node['itemState'] = DIFF_ELEMENT_ADDED;
+                $node['value'] = $comparedParameter2;
+                return $node;
             }
 
             if (!isset($comparedParameter2)) {
-                $resultParameter['itemState'] = DIFF_ELEMENT_REMOVED;
-                $resultParameter['value'] = $comparedParameter1;
-                return $resultParameter;
+                $node['itemState'] = DIFF_ELEMENT_REMOVED;
+                $node['value'] = $comparedParameter1;
+                return $node;
             }
 
             if ($comparedParameter1 === $comparedParameter2) {
-                 $resultParameter['itemState'] = DIFF_ELEMENT_UNCHANGED;
-                $resultParameter['value'] = $comparedParameter1;
-                return $resultParameter;
+                $node['itemState'] = DIFF_ELEMENT_UNCHANGED;
+                $node['value'] = $comparedParameter1;
+                return $node;
             }
 
             if ((is_array($comparedParameter1)) && (is_array($comparedParameter2))) {
-                $resultParameter['children'] = $getDiff($comparedParameter1, $comparedParameter2);
+                $node['children'] = $getDiff($comparedParameter1, $comparedParameter2);
             } else {
-                $resultParameter['itemState'] = DIFF_ELEMENT_CHANGED;
-                $resultParameter['oldValue'] = $comparedParameter1;
-                $resultParameter['newValue'] = $comparedParameter2;
+                $node['itemState'] = DIFF_ELEMENT_CHANGED;
+                $node['oldValue'] = $comparedParameter1;
+                $node['newValue'] = $comparedParameter2;
             }
-            return $resultParameter;
+            return $node;
         }, $configKeys);
     };
 
@@ -57,8 +60,11 @@ function genDiff($fileLink1, $fileLink2, $outputFormat = 'text')
     $firstConfigContent = readFromFile($fileLink1);
     $secondConfigContent = readFromFile($fileLink2);
 
-    $firstConfig = parseConfig($firstConfigContent);
-    $secondConfig = parseConfig($secondConfigContent);
+    $extension1 = getExtension($fileLink1);
+    $extension2 = getExtension($fileLink2);
+
+    $firstConfig = parseConfig($extension1, $firstConfigContent);
+    $secondConfig = parseConfig($extension2, $secondConfigContent);
 
     $diff = buildDiff($firstConfig, $secondConfig);
 

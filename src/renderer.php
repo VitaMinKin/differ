@@ -6,7 +6,7 @@ use function Differ\Formatters\pretty\convertToText;
 use function Differ\Formatters\plain\convertToPlain;
 use function Differ\Formatters\json\convertToJson;
 
-function render(array $diff, $outputFormat = 'default')
+function render(array $diff, $outputFormat = 'text')
 {
     switch ($outputFormat) {
         case 'plain':
@@ -17,6 +17,6 @@ function render(array $diff, $outputFormat = 'default')
             break;
         default:
             return convertToText($diff);
-        break;
+            break;
     }
 }
