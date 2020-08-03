@@ -16,37 +16,35 @@ function convertToPlain(array $diff)
 {
     $converter = function ($diff, $parentName = '') use (&$converter) {
 
-        $result = array_reduce($diff, function ($outputString, $element) use (&$converter, $parentName) {
-
+        $outputStrings = array_reduce($diff, function ($stringAcc, $element) use (&$converter, $parentName) {
             ['name' => $elementName, 'children' => $elementChildren] = $element;
             $сompoundParameterName = ($parentName == '') ? $elementName : "$parentName.$elementName";
 
-            if (isset($element['itemState'])) {
-                switch ($element['itemState']) {
-                    case DIFF_ELEMENT_CHANGED:
-                        $before = $element['oldValue'];
-                        $after = $element['newValue'];
-                        $oldValue = (isComplexValue($before)) ? 'complex value' : $before;
-                        $newValue = (isComplexValue($after)) ? 'complex value' : $after;
-                        $outputString .= "Property '$сompoundParameterName' was changed. ";
-                        $outputString .= "From '$oldValue' to '$newValue'" . "\n";
-                        break;
-                    case DIFF_ELEMENT_ADDED:
-                        $value = (isComplexValue($element['value'])) ? 'complex value' : $element['value'];
-                        $outputString .= "Property '$сompoundParameterName' was added with value: '$value'" . "\n";
-                        break;
-                    case DIFF_ELEMENT_REMOVED:
-                        $outputString .= "Property '$сompoundParameterName' was removed" . "\n";
-                }
+            switch ($element['type']) {
+                case DIFF_ELEMENT_CHANGED:
+                    $before = $element['oldValue'];
+                    $after = $element['newValue'];
+                    $oldValue = (isComplexValue($before)) ? 'complex value' : $before;
+                    $newValue = (isComplexValue($after)) ? 'complex value' : $after;
+                    $stringAcc[] = "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'";
+                    break;
+                case DIFF_ELEMENT_ADDED:
+                    $value = (isComplexValue($element['value'])) ? 'complex value' : $element['value'];
+                    $stringAcc[] = "Property '$сompoundParameterName' was added with value: '$value'";
+                    break;
+                case DIFF_ELEMENT_REMOVED:
+                    $stringAcc[] = "Property '$сompoundParameterName' was removed";
             }
 
             if (!empty($elementChildren)) {
-                $outputString .= $converter($elementChildren, $сompoundParameterName);
+                $stringAcc[] = $converter($elementChildren, $сompoundParameterName);
             }
 
-            return $outputString;
-        }, '');
-        return $result;
+            return $stringAcc;
+        }, []);
+
+        return implode(PHP_EOL, $outputStrings);
     };
+
     return trim($converter($diff));
 }

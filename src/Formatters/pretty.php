@@ -4,6 +4,7 @@ namespace Differ\Formatters\pretty;
 
 use const Differ\DIFF_ELEMENT_ADDED;
 use const Differ\DIFF_ELEMENT_CHANGED;
+use const Differ\DIFF_ELEMENT_NESTED;
 use const Differ\DIFF_ELEMENT_UNCHANGED;
 use const Differ\DIFF_ELEMENT_REMOVED;
 
@@ -47,15 +48,15 @@ function convertToText(array $diff)
                 DIFF_ELEMENT_REMOVED => $deleted
             ] = $prefix;
 
-            if (isset($element['itemState'])) {
-                if ($element['itemState'] === DIFF_ELEMENT_CHANGED) {
+            if ($element['type'] !== DIFF_ELEMENT_NESTED) {
+                if ($element['type'] === DIFF_ELEMENT_CHANGED) {
                     $oldValue = getFormattedString($element['oldValue'], $depth);
                     $newValue = getFormattedString($element['newValue'], $depth);
                     $outputString .= "{$added}{$elementName}: $newValue\n";
                     $outputString .= "{$deleted}{$elementName}: $oldValue\n";
                 } else {
                     $value = getFormattedString($element['value'], $depth);
-                    $outputString .= "{$prefix[$element['itemState']]}{$elementName}: $value\n";
+                    $outputString .= "{$prefix[$element['type']]}{$elementName}: $value\n";
                 }
             }
 

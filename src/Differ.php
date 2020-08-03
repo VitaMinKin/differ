@@ -12,6 +12,7 @@ const DIFF_ELEMENT_ADDED = 'added';
 const DIFF_ELEMENT_REMOVED = 'deleted';
 const DIFF_ELEMENT_CHANGED = 'changed';
 const DIFF_ELEMENT_UNCHANGED = 'unchanged';
+const DIFF_ELEMENT_NESTED = 'nested';
 
 function buildDiff(array $firstConfig, array $secondConfig)
 {
@@ -24,27 +25,28 @@ function buildDiff(array $firstConfig, array $secondConfig)
             $comparedParameter2 = isset($secondConfig[$elementName]) ? $secondConfig[$elementName] : null;
 
             if (!isset($comparedParameter1)) {
-                $node['itemState'] = DIFF_ELEMENT_ADDED;
+                $node['type'] = DIFF_ELEMENT_ADDED;
                 $node['value'] = $comparedParameter2;
                 return $node;
             }
 
             if (!isset($comparedParameter2)) {
-                $node['itemState'] = DIFF_ELEMENT_REMOVED;
+                $node['type'] = DIFF_ELEMENT_REMOVED;
                 $node['value'] = $comparedParameter1;
                 return $node;
             }
 
             if ($comparedParameter1 === $comparedParameter2) {
-                $node['itemState'] = DIFF_ELEMENT_UNCHANGED;
+                $node['type'] = DIFF_ELEMENT_UNCHANGED;
                 $node['value'] = $comparedParameter1;
                 return $node;
             }
 
             if ((is_array($comparedParameter1)) && (is_array($comparedParameter2))) {
+                $node['type'] = DIFF_ELEMENT_NESTED;
                 $node['children'] = $getDiff($comparedParameter1, $comparedParameter2);
             } else {
-                $node['itemState'] = DIFF_ELEMENT_CHANGED;
+                $node['type'] = DIFF_ELEMENT_CHANGED;
                 $node['oldValue'] = $comparedParameter1;
                 $node['newValue'] = $comparedParameter2;
             }
@@ -63,8 +65,8 @@ function genDiff($fileLink1, $fileLink2, $outputFormat = 'text')
     $extension1 = getExtension($fileLink1);
     $extension2 = getExtension($fileLink2);
 
-    $firstConfig = parseConfig($extension1, $firstConfigContent);
-    $secondConfig = parseConfig($extension2, $secondConfigContent);
+    $firstConfig = parseConfig($firstConfigContent, $extension1);
+    $secondConfig = parseConfig($secondConfigContent, $extension2);
 
     $diff = buildDiff($firstConfig, $secondConfig);
 

@@ -5,25 +5,25 @@
             {
                 "name": "setting1",
                 "children": [],
-                "itemState": "unchanged",
+                "type": "unchanged",
                 "value": "Value 1"
             },
             {
                 "name": "setting2",
                 "children": [],
-                "itemState": "deleted",
+                "type": "deleted",
                 "value": "200"
             },
             {
                 "name": "setting3",
                 "children": [],
-                "itemState": "unchanged",
+                "type": "unchanged",
                 "value": true
             },
             {
                 "name": "setting6",
                 "children": [],
-                "itemState": "deleted",
+                "type": "deleted",
                 "value": {
                     "key": "value"
                 }
@@ -31,18 +31,19 @@
             {
                 "name": "setting4",
                 "children": [],
-                "itemState": "added",
+                "type": "added",
                 "value": "blah blah"
             },
             {
                 "name": "setting5",
                 "children": [],
-                "itemState": "added",
+                "type": "added",
                 "value": {
                     "key5": "value5"
                 }
             }
-        ]
+        ],
+        "type": "nested"
     },
     {
         "name": "group1",
@@ -50,22 +51,23 @@
             {
                 "name": "baz",
                 "children": [],
-                "itemState": "changed",
+                "type": "changed",
                 "oldValue": "bas",
                 "newValue": "bars"
             },
             {
                 "name": "foo",
                 "children": [],
-                "itemState": "unchanged",
+                "type": "unchanged",
                 "value": "bar"
             }
-        ]
+        ],
+        "type": "nested"
     },
     {
         "name": "group2",
         "children": [],
-        "itemState": "deleted",
+        "type": "deleted",
         "value": {
             "abc": "12345"
         }
@@ -73,7 +75,7 @@
     {
         "name": "group3",
         "children": [],
-        "itemState": "added",
+        "type": "added",
         "value": {
             "fee": "100500"
         }

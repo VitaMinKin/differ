@@ -9,7 +9,7 @@ function convertToArray(object $object)
     return json_decode(json_encode($object), true);
 }
 
-function parseConfig($extension, $content)
+function parseConfig($content, $extension)
 {
     switch ($extension) {
         case 'json':
