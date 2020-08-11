@@ -19,7 +19,7 @@ function parseConfig($content, $extension)
             $parsedData = Yaml::parse($content, Yaml::PARSE_OBJECT_FOR_MAP + Yaml::PARSE_EXCEPTION_ON_INVALID_TYPE);
             break;
         default:
-            throw new \Exception("Unsupported config file format");
+            throw new \Exception("Unsupported config {$extension} format");
     }
 
     return convertToArray($parsedData);

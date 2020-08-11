@@ -3,27 +3,11 @@
 
 $autoloadPath1 = __DIR__ . '/../../../autoload.php';
 $autoloadPath2 = __DIR__ . '/../vendor/autoload.php';
+
 if (file_exists($autoloadPath1)) {
     require_once $autoloadPath1;
 } else {
     require_once $autoloadPath2;
 }
 
-$cli = file_get_contents(__DIR__ . '/../src/cli.docopt');
-
-$params = array(
-    'argv' => array_slice($_SERVER['argv'], 1),
-    'help' => true,
-    'version' => 'differ 0.0.1',
-    'optionsFirst' => false,
-);
-$arguments = \Docopt::handle($cli, $params)->args;
-
-['<firstFile>' => $pathToFile1,
- '<secondFile>' => $pathToFile2,
- '--format' => $outputFormat] = $arguments;
-
-use function Differ\genDiff;
-$differ = genDiff($pathToFile1, $pathToFile2, $outputFormat);
-
-echo $differ;
+Differ\cli\run();

@@ -2,11 +2,11 @@
 
 namespace Differ\Formatters\pretty;
 
-use const Differ\DIFF_ELEMENT_ADDED;
-use const Differ\DIFF_ELEMENT_CHANGED;
-use const Differ\DIFF_ELEMENT_NESTED;
-use const Differ\DIFF_ELEMENT_UNCHANGED;
-use const Differ\DIFF_ELEMENT_REMOVED;
+use const Differ\Differ\DIFF_ELEMENT_ADDED;
+use const Differ\Differ\DIFF_ELEMENT_CHANGED;
+use const Differ\Differ\DIFF_ELEMENT_NESTED;
+use const Differ\Differ\DIFF_ELEMENT_UNCHANGED;
+use const Differ\Differ\DIFF_ELEMENT_REMOVED;
 
 function getFormattedString($item, $depth)
 {

@@ -2,10 +2,9 @@
 
 namespace Differ\Formatters\plain;
 
-use const Differ\DIFF_ELEMENT_ADDED;
-use const Differ\DIFF_ELEMENT_CHANGED;
-use const Differ\DIFF_ELEMENT_UNCHANGED;
-use const Differ\DIFF_ELEMENT_REMOVED;
+use const Differ\Differ\DIFF_ELEMENT_ADDED;
+use const Differ\Differ\DIFF_ELEMENT_CHANGED;
+use const Differ\Differ\DIFF_ELEMENT_REMOVED;
 
 function isComplexValue($item)
 {
