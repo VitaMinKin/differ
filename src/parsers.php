@@ -4,23 +4,19 @@ namespace Differ\parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
-function convertToArray(object $object)
+function parseConfig($content, $format)
 {
-    return json_decode(json_encode($object), true);
-}
-
-function parseConfig($content, $extension)
-{
-    switch ($extension) {
+    switch ($format) {
         case 'json':
             $parsedData = json_decode($content, false, JSON_THROW_ON_ERROR);
             break;
+        case 'yaml':
         case 'yml':
             $parsedData = Yaml::parse($content, Yaml::PARSE_OBJECT_FOR_MAP + Yaml::PARSE_EXCEPTION_ON_INVALID_TYPE);
             break;
         default:
-            throw new \Exception("Unsupported config {$extension} format");
+            throw new \Exception("Unsupported {$format} config format");
     }
 
-    return convertToArray($parsedData);
+    return $parsedData;
 }
