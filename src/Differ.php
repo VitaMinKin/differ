@@ -2,74 +2,24 @@
 
 namespace Differ\Differ;
 
-use stdClass;
-
-use function Differ\loader\getExtension;
-use function Differ\loader\readFromFile;
+use function Differ\loader\getFormat;
+use function Differ\loader\read;
 use function Differ\parsers\parseConfig;
+use function Differ\builder\buildDiff;
+use function Differ\renderer\render;
 
-const DIFF_ELEMENT_ADDED = 'added';
-const DIFF_ELEMENT_REMOVED = 'deleted';
-const DIFF_ELEMENT_CHANGED = 'changed';
-const DIFF_ELEMENT_UNCHANGED = 'unchanged';
-const DIFF_ELEMENT_NESTED = 'nested';
-
-function buildDiff(array $firstConfig, array $secondConfig)
+function genDiff($configPath1, $configPath2, $outputFormat = 'text')
 {
-    $getDiff = function ($firstConfig, $secondConfig) use (&$getDiff) {
-        $configKeys = array_keys(array_merge($firstConfig, $secondConfig));
+    $firstConfigContent = read($configPath1);
+    $secondConfigContent = read($configPath2);
 
-        return array_map(function ($elementName) use ($firstConfig, $secondConfig, &$getDiff) {
-            $node = ['name' => $elementName, 'children' => []];
-            $comparedParameter1 = isset($firstConfig[$elementName]) ? $firstConfig[$elementName] : null;
-            $comparedParameter2 = isset($secondConfig[$elementName]) ? $secondConfig[$elementName] : null;
+    $firstConfigFormat = getFormat($configPath1);
+    $secondConfigFormat = getFormat($configPath2);
 
-            if (!isset($comparedParameter1)) {
-                $node['type'] = DIFF_ELEMENT_ADDED;
-                $node['value'] = $comparedParameter2;
-                return $node;
-            }
-
-            if (!isset($comparedParameter2)) {
-                $node['type'] = DIFF_ELEMENT_REMOVED;
-                $node['value'] = $comparedParameter1;
-                return $node;
-            }
-
-            if ($comparedParameter1 === $comparedParameter2) {
-                $node['type'] = DIFF_ELEMENT_UNCHANGED;
-                $node['value'] = $comparedParameter1;
-                return $node;
-            }
-
-            if ((is_array($comparedParameter1)) && (is_array($comparedParameter2))) {
-                $node['type'] = DIFF_ELEMENT_NESTED;
-                $node['children'] = $getDiff($comparedParameter1, $comparedParameter2);
-            } else {
-                $node['type'] = DIFF_ELEMENT_CHANGED;
-                $node['oldValue'] = $comparedParameter1;
-                $node['newValue'] = $comparedParameter2;
-            }
-            return $node;
-        }, $configKeys);
-    };
-
-    return $getDiff($firstConfig, $secondConfig);
-}
-
-function genDiff($fileLink1, $fileLink2, $outputFormat = 'text')
-{
-    $firstConfigContent = readFromFile($fileLink1);
-    $secondConfigContent = readFromFile($fileLink2);
-
-    $extension1 = getExtension($fileLink1);
-    $extension2 = getExtension($fileLink2);
-
-    $firstConfig = parseConfig($firstConfigContent, $extension1);
-    $secondConfig = parseConfig($secondConfigContent, $extension2);
+    $firstConfig = parseConfig($firstConfigContent, $firstConfigFormat);
+    $secondConfig = parseConfig($secondConfigContent, $secondConfigFormat);
 
     $diff = buildDiff($firstConfig, $secondConfig);
 
-    $difference = \Differ\renderer\render($diff, $outputFormat);
-    return $difference;
+    return render($diff, $outputFormat);
 }
