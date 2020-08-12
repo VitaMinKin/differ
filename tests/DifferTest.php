@@ -18,30 +18,29 @@ class DifferTest extends TestCase
         return trim(file_get_contents($filePath));
     }
 
-    public function testGenDiff()
+    public function genDiffProvider()
     {
-        $pathToFirstFixture = $this->getFixturePath('beforeTree.json');
-        $pathToSecondFixture = $this->getFixturePath('afterTree.json');
-        $pathToResultFixture = $this->getFixturePath('prettyNested.txt');
+        return [
+           'pretty nested format' => ['beforeTree.json', 'afterTree.json', 'prettyNested.txt', null],
+            'plain format' => ['beforeTree.json', 'afterTree.json', 'plain.txt', 'plain'],
+            'yaml format' => ['before.yml', 'after.yml', 'yamlPlain.txt', 'unknownFormat'],
+            'json format' => ['beforeTree.json', 'afterTree.json', 'config.json', 'json']
+        ];
+    }
+
+    /**
+     * @dataProvider genDiffProvider
+     */
+
+    public function testGenDiff($fixture1, $fixture2, $resultFixture, $format)
+    {
+        $pathToFirstFixture = $this->getFixturePath($fixture1);
+        $pathToSecondFixture = $this->getFixturePath($fixture2);
+        $pathToResultFixture = $this->getFixturePath($resultFixture);
 
         $expected = $this->readFixture($pathToResultFixture);
-        $actual = genDiff($pathToFirstFixture, $pathToSecondFixture);
-        $this->assertEquals($expected, $actual);
+        $actual = genDiff($pathToFirstFixture, $pathToSecondFixture, $format);
 
-        $pathToResultFixture = $this->getFixturePath('plain.txt');
-        $expected = $this->readFixture($pathToResultFixture);
-        $actual = genDiff($pathToFirstFixture, $pathToSecondFixture, 'plain');
-        $this->assertEquals($expected, $actual);
-
-        $expected = $this->getFixturePath('config.json');
-        $actual = genDiff($pathToFirstFixture, $pathToSecondFixture, 'json');
-        $this->assertJsonStringEqualsJsonFile($expected, $actual);
-
-        $pathToResultFixture = $this->getFixturePath('yamlPlain.txt');
-        $pathToFirstFixture = $this->getFixturePath('before.yml');
-        $pathToSecondFixture = $this->getFixturePath('after.yml');
-        $expected = $this->readFixture($pathToResultFixture);
-        $actual = genDiff($pathToFirstFixture, $pathToSecondFixture, 'errorRequest');
         $this->assertEquals($expected, $actual);
     }
 }
