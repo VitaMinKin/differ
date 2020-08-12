@@ -2,20 +2,17 @@
 
 namespace Differ\loader;
 
-use SplFileInfo;
-
-function readFromFile($fileLink)
+function read($path)
 {
-    $file = new SplFileInfo($fileLink);
-
-    $pathToFile = $file->getRealPath();
-
-    return file_get_contents($pathToFile);
+    $absPath = realpath($path);
+    if ($absPath !== false) {
+        return file_get_contents($absPath);
+    } else {
+        throw new \Exception("Invalid config path passed: {$path}");
+    }
 }
 
-function getExtension(string $filePath)
+function getFormat(string $path)
 {
-    $splittenPath = explode('.', $filePath);
-    $extension = $splittenPath[count($splittenPath) - 1];
-    return $extension;
+    return pathinfo($path, PATHINFO_EXTENSION);
 }
