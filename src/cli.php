@@ -21,7 +21,10 @@ function run()
     '<secondFile>' => $pathToFile2,
     '--format' => $outputFormat] = $arguments;
 
-    $differ = genDiff($pathToFile1, $pathToFile2, $outputFormat);
-
-    echo $differ;
+    try {
+        $differ = genDiff($pathToFile1, $pathToFile2, $outputFormat);
+        echo $differ;
+    } catch (\Exception $e) {
+        echo "Differ library runtime error: ", $e->getMessage(), "\n";
+    }
 }
