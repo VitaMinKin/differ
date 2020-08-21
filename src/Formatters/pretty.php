@@ -35,41 +35,43 @@ function convertToText(array $diff)
     $converter = function ($diff, $depth = "") use (&$converter) {
         $prefix = [DIFF_ELEMENT_UNCHANGED => '    ', DIFF_ELEMENT_ADDED => '  + ', DIFF_ELEMENT_REMOVED => '  - '];
 
-        $prefix = array_map(fn($item) => $depth . $item, $prefix);
+        $depthPrefix = array_map(fn($item) => $depth . $item, $prefix);
 
-        $result = array_reduce($diff, function ($outputString, $element) use (&$converter, $prefix) {
+        $result = array_reduce($diff, function ($acc, $element) use (&$converter, $depthPrefix) {
 
             ['name' => $elementName, 'children' => $elementChildren] = $element;
             [
                 DIFF_ELEMENT_UNCHANGED => $depth,
                 DIFF_ELEMENT_ADDED => $added,
                 DIFF_ELEMENT_REMOVED => $deleted
-            ] = $prefix;
+            ] = $depthPrefix;
 
-            if ($element['type'] !== DIFF_ELEMENT_NESTED) {
-                if ($element['type'] === DIFF_ELEMENT_CHANGED) {
+            switch ($element['type']) {
+                case DIFF_ELEMENT_ADDED:
+                case DIFF_ELEMENT_REMOVED:
+                case DIFF_ELEMENT_UNCHANGED:
+                    $value = getFormattedString($element['value'], $depth);
+                    $acc[] = "{$depthPrefix[$element['type']]}{$elementName}: $value";
+                    break;
+                case DIFF_ELEMENT_CHANGED:
                     $oldValue = getFormattedString($element['oldValue'], $depth);
                     $newValue = getFormattedString($element['newValue'], $depth);
-                    $outputString .= "{$added}{$elementName}: $newValue\n";
-                    $outputString .= "{$deleted}{$elementName}: $oldValue\n";
-                } else {
-                    $value = getFormattedString($element['value'], $depth);
-                    $outputString .= "{$prefix[$element['type']]}{$elementName}: $value\n";
-                }
+                    $acc[] = "{$added}{$elementName}: $newValue";
+                    $acc[] = "{$deleted}{$elementName}: $oldValue";
+                    break;
+                case DIFF_ELEMENT_NESTED:
+                    $acc[] = "{$depth}{$elementName}: {";
+                    $acc[] = $converter($elementChildren, $depth);
+                    $acc[] = "$depth}";
+                    break;
             }
 
-            if (!empty($elementChildren)) {
-                $outputString .= "{$depth}{$elementName}: {\n";
-                $outputString .= $converter($elementChildren, $depth);
-                $outputString .= "$depth}\n";
-            }
+            return $acc;
+        }, []);
 
-            return $outputString;
-        }, '');
-
-        return $result;
+        return implode("\n", $result);
     };
 
-    $outputString = $converter($diff);
-    return "{\n$outputString}";
+    $output = $converter($diff);
+    return "{\n$output\n}";
 }
