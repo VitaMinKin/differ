@@ -8,12 +8,12 @@ function run()
 {
     $cli = file_get_contents(__DIR__ . '/cli.docopt');
 
-    $params = array(
+    $params = [
         'argv' => array_slice($_SERVER['argv'], 1),
         'help' => true,
         'version' => 'differ 0.0.1',
         'optionsFirst' => false,
-    );
+    ];
 
     $arguments = \Docopt::handle($cli, $params)->args;
 
@@ -25,6 +25,6 @@ function run()
         $differ = genDiff($pathToFile1, $pathToFile2, $outputFormat);
         echo $differ;
     } catch (\Exception $e) {
-        echo "Differ library runtime error: ", $e->getMessage(), "\n";
+        echo "Differ library runtime error {$e->getCode()}: ", $e->getMessage(), "\n";
     }
 }

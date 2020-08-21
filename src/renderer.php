@@ -11,12 +11,9 @@ function render(array $diff, $outputFormat = 'text')
     switch ($outputFormat) {
         case 'plain':
             return convertToPlain($diff);
-            break;
         case 'json':
             return convertToJson($diff);
-            break;
         default:
             return convertToText($diff);
-            break;
     }
 }

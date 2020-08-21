@@ -35,9 +35,7 @@ function convertToText(array $diff)
     $converter = function ($diff, $depth = "") use (&$converter) {
         $prefix = [DIFF_ELEMENT_UNCHANGED => '    ', DIFF_ELEMENT_ADDED => '  + ', DIFF_ELEMENT_REMOVED => '  - '];
 
-        $prefix = array_map(function ($item) use ($depth) {
-            return $depth . $item;
-        }, $prefix);
+        $prefix = array_map(fn($item) => $depth . $item, $prefix);
 
         $result = array_reduce($diff, function ($outputString, $element) use (&$converter, $prefix) {
 

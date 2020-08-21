@@ -4,6 +4,7 @@ namespace Differ\Formatters\plain;
 
 use const Differ\builder\DIFF_ELEMENT_ADDED;
 use const Differ\builder\DIFF_ELEMENT_CHANGED;
+use const Differ\builder\DIFF_ELEMENT_NESTED;
 use const Differ\builder\DIFF_ELEMENT_REMOVED;
 
 function isComplexValue($item)
@@ -33,10 +34,10 @@ function convertToPlain(array $diff)
                     break;
                 case DIFF_ELEMENT_REMOVED:
                     $stringAcc[] = "Property '$сompoundParameterName' was removed";
-            }
-
-            if (!empty($elementChildren)) {
-                $stringAcc[] = $converter($elementChildren, $сompoundParameterName);
+                    break;
+                case DIFF_ELEMENT_NESTED:
+                    $stringAcc[] = $converter($elementChildren, $сompoundParameterName);
+                    break;
             }
 
             return $stringAcc;
