@@ -12,6 +12,11 @@ function isComplexValue($item)
     return is_array($item);
 }
 
+function getValue($value)
+{
+    return (isComplexValue($value)) ? 'complex value' : $value;
+}
+
 function convertToPlain(array $diff)
 {
     $converter = function ($diff, $parentName = '') use (&$converter) {
@@ -24,12 +29,12 @@ function convertToPlain(array $diff)
                 case DIFF_ELEMENT_CHANGED:
                     $before = $element['oldValue'];
                     $after = $element['newValue'];
-                    $oldValue = (isComplexValue($before)) ? 'complex value' : $before;
-                    $newValue = (isComplexValue($after)) ? 'complex value' : $after;
+                    $oldValue = getValue($before);
+                    $newValue = getValue($after);
                     $stringAcc[] = "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'";
                     break;
                 case DIFF_ELEMENT_ADDED:
-                    $value = (isComplexValue($element['value'])) ? 'complex value' : $element['value'];
+                    $value = getValue($element['value']);
                     $stringAcc[] = "Property '$сompoundParameterName' was added with value: '$value'";
                     break;
                 case DIFF_ELEMENT_REMOVED:
@@ -43,7 +48,7 @@ function convertToPlain(array $diff)
             return $stringAcc;
         }, []);
 
-        return implode(PHP_EOL, $outputStrings);
+        return implode("\n", $outputStrings);
     };
 
     return trim($converter($diff));
