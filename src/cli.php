@@ -25,6 +25,7 @@ function run()
         $differ = genDiff($pathToFile1, $pathToFile2, $outputFormat);
         echo $differ;
     } catch (\Exception $e) {
-        echo "Differ library runtime error {$e->getCode()}: ", $e->getMessage(), "\n";
+        echo "Differ library runtime error: ", $e->getMessage(), "\n";
+        exit(1);
     }
 }
