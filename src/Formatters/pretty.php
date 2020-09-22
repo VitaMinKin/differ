@@ -14,7 +14,7 @@ function getFormattedString($item, $depth)
         return boolval($item) ? 'true' : 'false';
     }
 
-    if (is_object($item)) {
+    if (is_array($item)) {
         $preResult = json_encode($item, JSON_PRETTY_PRINT);
 
         $listOfStrings = explode("\n", $preResult);
@@ -39,8 +39,7 @@ function convertToText(array $diff)
 
         $result = array_reduce($diff, function ($acc, $element) use (&$converter, $depthPrefix) {
 
-            $elementName = $element['name'];
-
+            ['name' => $elementName, 'children' => $elementChildren] = $element;
             [
                 DIFF_ELEMENT_UNCHANGED => $depth,
                 DIFF_ELEMENT_ADDED => $added,
@@ -62,7 +61,7 @@ function convertToText(array $diff)
                     break;
                 case DIFF_ELEMENT_NESTED:
                     $acc[] = "{$depth}{$elementName}: {";
-                    $acc[] = $converter($element['children'], $depth);
+                    $acc[] = $converter($elementChildren, $depth);
                     $acc[] = "$depth}";
                     break;
             }
