@@ -9,7 +9,7 @@ use const Differ\builder\DIFF_ELEMENT_REMOVED;
 
 function isComplexValue($item)
 {
-    return is_array($item);
+    return is_object($item);
 }
 
 function getValue($value)
@@ -22,7 +22,7 @@ function convertToPlain(array $diff)
     $converter = function ($diff, $parentName = '') use (&$converter) {
 
         $outputStrings = array_reduce($diff, function ($stringAcc, $element) use (&$converter, $parentName) {
-            ['name' => $elementName, 'children' => $elementChildren] = $element;
+            ['name' => $elementName] = $element;
             $сompoundParameterName = ($parentName == '') ? $elementName : "$parentName.$elementName";
 
             switch ($element['type']) {
@@ -41,7 +41,7 @@ function convertToPlain(array $diff)
                     $stringAcc[] = "Property '$сompoundParameterName' was removed";
                     break;
                 case DIFF_ELEMENT_NESTED:
-                    $stringAcc[] = $converter($elementChildren, $сompoundParameterName);
+                    $stringAcc[] = $converter($element['children'], $сompoundParameterName);
                     break;
             }
 

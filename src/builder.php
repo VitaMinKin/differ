@@ -10,50 +10,72 @@ const DIFF_ELEMENT_CHANGED = 'changed';
 const DIFF_ELEMENT_UNCHANGED = 'unchanged';
 const DIFF_ELEMENT_NESTED = 'nested';
 
-function convertToArray(object $object)
+function getProperty(stdClass $config, $property)
 {
-    return json_decode(json_encode($object), true);
+    return property_exists($config, $property) ? $config->$property : null;
+}
+
+function createNode($name, $type, $value, $oldValue = null, array $children = null)
+{
+    $nodeData = [
+        'name' => $name,
+        'type' => $type
+    ];
+
+    switch ($type) {
+        case DIFF_ELEMENT_ADDED:
+        case DIFF_ELEMENT_REMOVED:
+        case DIFF_ELEMENT_UNCHANGED:
+            $nodeData['value'] = $value;
+            break;
+        case DIFF_ELEMENT_CHANGED:
+            $nodeData['oldValue'] = $oldValue;
+            $nodeData['newValue'] = $value;
+            break;
+        case DIFF_ELEMENT_NESTED:
+            $nodeData['children'] = $children;
+    }
+
+    return $nodeData;
 }
 
 function buildDiff(stdClass $firstConfig, stdClass $secondConfig)
 {
-    $getDiff = function (array $firstConfig, array $secondConfig) use (&$getDiff) {
-        $configKeys = array_keys(array_merge($firstConfig, $secondConfig));
+    $generateDiff = function ($firstConfig, $secondConfig) use (&$generateDiff) {
+        $beforeProperties = get_object_vars($firstConfig);
+        $afterProperties = get_object_vars($secondConfig);
+        $uniteProperties = array_merge($beforeProperties, $afterProperties);
+        $configKeys = array_keys($uniteProperties);
 
-        return array_map(function ($elementName) use ($firstConfig, $secondConfig, &$getDiff) {
-            $node = ['name' => $elementName, 'children' => []];
-            $firstProperty = $firstConfig[$elementName] ?? null;
-            $secondProperty = $secondConfig[$elementName] ?? null;
+        return array_map(function ($propertyName) use ($firstConfig, $secondConfig, $generateDiff) {
+            $beforeProperty = getProperty($firstConfig, $propertyName);
+            $afterProperty = getProperty($secondConfig, $propertyName);
 
-            if (!isset($firstProperty)) {
-                $node['type'] = DIFF_ELEMENT_ADDED;
-                $node['value'] = $secondProperty;
-                return $node;
+            if (!isset($beforeProperty)) {
+                return createNode($propertyName, DIFF_ELEMENT_ADDED, $afterProperty);
             }
 
-            if (!isset($secondProperty)) {
-                $node['type'] = DIFF_ELEMENT_REMOVED;
-                $node['value'] = $firstProperty;
-                return $node;
+            if (!isset($afterProperty)) {
+                return createNode($propertyName, DIFF_ELEMENT_REMOVED, $beforeProperty);
             }
 
-            if ($firstProperty === $secondProperty) {
-                $node['type'] = DIFF_ELEMENT_UNCHANGED;
-                $node['value'] = $firstProperty;
-                return $node;
+            if ($beforeProperty === $afterProperty) {
+                return createNode($propertyName, DIFF_ELEMENT_UNCHANGED, $beforeProperty);
             }
 
-            if ((is_array($firstProperty)) && (is_array($secondProperty))) {
-                $node['type'] = DIFF_ELEMENT_NESTED;
-                $node['children'] = $getDiff($firstProperty, $secondProperty);
+            if ((is_object($beforeProperty)) && (is_object($afterProperty))) {
+                return createNode(
+                    $propertyName,
+                    DIFF_ELEMENT_NESTED,
+                    null,
+                    null,
+                    $generateDiff($beforeProperty, $afterProperty)
+                );
             } else {
-                $node['type'] = DIFF_ELEMENT_CHANGED;
-                $node['oldValue'] = $firstProperty;
-                $node['newValue'] = $secondProperty;
+                return createNode($propertyName, DIFF_ELEMENT_CHANGED, $afterProperty, $beforeProperty);
             }
-            return $node;
         }, $configKeys);
     };
 
-    return $getDiff(convertToArray($firstConfig), convertToArray($secondConfig));
+    return $generateDiff($firstConfig, $secondConfig);
 }

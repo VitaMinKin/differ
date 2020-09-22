@@ -1,28 +1,25 @@
 [
     {
         "name": "common",
+        "type": "nested",
         "children": [
             {
                 "name": "setting1",
-                "children": [],
                 "type": "unchanged",
                 "value": "Value 1"
             },
             {
                 "name": "setting2",
-                "children": [],
                 "type": "deleted",
                 "value": "200"
             },
             {
                 "name": "setting3",
-                "children": [],
                 "type": "unchanged",
                 "value": true
             },
             {
                 "name": "setting6",
-                "children": [],
                 "type": "deleted",
                 "value": {
                     "key": "value"
@@ -30,43 +27,37 @@
             },
             {
                 "name": "setting4",
-                "children": [],
                 "type": "added",
                 "value": "blah blah"
             },
             {
                 "name": "setting5",
-                "children": [],
                 "type": "added",
                 "value": {
                     "key5": "value5"
                 }
             }
-        ],
-        "type": "nested"
+        ]
     },
     {
         "name": "group1",
+        "type": "nested",
         "children": [
             {
                 "name": "baz",
-                "children": [],
                 "type": "changed",
                 "oldValue": "bas",
                 "newValue": "bars"
             },
             {
                 "name": "foo",
-                "children": [],
                 "type": "unchanged",
                 "value": "bar"
             }
-        ],
-        "type": "nested"
+        ]
     },
     {
         "name": "group2",
-        "children": [],
         "type": "deleted",
         "value": {
             "abc": "12345"
@@ -74,7 +65,6 @@
     },
     {
         "name": "group3",
-        "children": [],
         "type": "added",
         "value": {
             "fee": "100500"
