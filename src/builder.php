@@ -12,28 +12,26 @@ const DIFF_ELEMENT_NESTED = 'nested';
 
 function createNode($name, $type, $value, $oldValue = null, array $children = null)
 {
+    $nodeData = [
+        'name' => $name,
+        'type' => $type
+    ];
+
     if (isset($children)) {
-        return [
-            'name' => $name,
-            'type' => $type,
-            'children' => $children
-        ];
+        return array_merge($nodeData, ['children' => $children]);
     }
 
     if (isset($oldValue)) {
-        return [
-            'name' => $name,
-            'type' => $type,
-            'oldValue' => $oldValue,
-            'newValue' => $value
-        ];
+        return array_merge(
+            $nodeData,
+            [
+                'oldValue' => $oldValue,
+                'newValue' => $value
+            ]
+        );
     }
 
-    return [
-        'name' => $name,
-        'type' => $type,
-        'value' => $value
-    ];
+    return array_merge($nodeData, ['value' => $value]);
 }
 
 function buildDiff(stdClass $firstConfig, stdClass $secondConfig)
