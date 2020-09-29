@@ -6,6 +6,7 @@ use const Differ\builder\DIFF_ELEMENT_ADDED;
 use const Differ\builder\DIFF_ELEMENT_CHANGED;
 use const Differ\builder\DIFF_ELEMENT_NESTED;
 use const Differ\builder\DIFF_ELEMENT_REMOVED;
+use const Differ\builder\DIFF_ELEMENT_UNCHANGED;
 
 function isComplexValue($item)
 {
@@ -43,6 +44,10 @@ function convertToPlain(array $diff)
                 case DIFF_ELEMENT_NESTED:
                     $stringAcc[] = $converter($element['children'], $сompoundParameterName);
                     break;
+                case DIFF_ELEMENT_UNCHANGED:
+                    break;
+                default:
+                    throw new \Exception("Unknown type {$element['type']} in diff!");
             }
 
             return $stringAcc;
