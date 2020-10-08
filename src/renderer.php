@@ -2,11 +2,11 @@
 
 namespace Differ\renderer;
 
-use function Differ\Formatters\pretty\convertToText;
+use function Differ\Formatters\pretty\convertToPretty;
 use function Differ\Formatters\plain\convertToPlain;
 use function Differ\Formatters\json\convertToJson;
 
-function render(array $diff, $outputFormat = 'text')
+function render(array $diff, $outputFormat)
 {
     switch ($outputFormat) {
         case 'plain':
@@ -14,6 +14,6 @@ function render(array $diff, $outputFormat = 'text')
         case 'json':
             return convertToJson($diff);
         default:
-            return convertToText($diff);
+            return convertToPretty($diff);
     }
 }

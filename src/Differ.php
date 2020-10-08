@@ -8,7 +8,7 @@ use function Differ\parsers\parseConfig;
 use function Differ\builder\buildDiff;
 use function Differ\renderer\render;
 
-function genDiff($configPath1, $configPath2, $outputFormat = 'text')
+function genDiff($configPath1, $configPath2, $outputFormat = 'pretty')
 {
     $firstConfigContent = read($configPath1);
     $secondConfigContent = read($configPath2);
