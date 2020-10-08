@@ -8,7 +8,41 @@ use const Differ\builder\DIFF_ELEMENT_NESTED;
 use const Differ\builder\DIFF_ELEMENT_UNCHANGED;
 use const Differ\builder\DIFF_ELEMENT_REMOVED;
 
-function getFormattedString($item, $indents)
+function removeQuotes($string)
+{
+    return str_replace('"', "", $string);
+}
+
+function createString($prefix, $property, $value)
+{
+    return $prefix . $property . ': ' . $value;
+}
+
+function calculateIndents(int $depth, $indent = "")
+{
+    if ($depth > 0) {
+        $newIndent = "    " . $indent;
+        return calculateIndents($depth - 1, $newIndent);
+    }
+
+    return $indent;
+}
+
+function getPrefix($type, int $depth)
+{
+    $prefix = [
+        DIFF_ELEMENT_UNCHANGED => '    ',
+        DIFF_ELEMENT_ADDED => '  + ',
+        DIFF_ELEMENT_REMOVED => '  - '
+    ];
+
+    $indent = calculateIndents($depth);
+    $depthPrefix = array_map(fn($item) => $indent . $item, $prefix);
+
+    return $depthPrefix[$type];
+}
+
+function convertToPrettyString($item, int $depth)
 {
     if (is_bool($item)) {
         return boolval($item) ? 'true' : 'false';
@@ -18,65 +52,61 @@ function getFormattedString($item, $indents)
         return $item;
     }
 
-    $preResult = json_encode($item, JSON_PRETTY_PRINT);
+    $indent = calculateIndents($depth + 1);
+    $json = json_encode($item, JSON_PRETTY_PRINT);
+    $strings = explode("\n", $json);
+    $formattedStrings = array_map(fn ($string) => $indent . removeQuotes($string), $strings);
+    $formattedStrings[0] = '{';
 
-    $listOfStrings = explode("\n", $preResult);
-    $addPadding = array_map(fn ($elem) => $indents . str_replace('"', "", $elem), $listOfStrings);
-    $addPadding[0] = '{';
-
-    $result = implode("\n", $addPadding);
-    return $result;
+    return implode("\n", $formattedStrings);
 }
 
-function createString($prefix, $key, $value)
+function makeString(int $depth, $nodeType, $nodeName, $nodeValue)
 {
-    return $prefix . $key . ': ' . $value;
+    $stringValue = convertToPrettyString($nodeValue, $depth);
+    $prefix = getPrefix($nodeType, $depth);
+    return createString($prefix, $nodeName, $stringValue);
 }
 
-function convertToText(array $diff)
+function convertToPretty(array $diff)
 {
-    $converter = function ($diff, $indents = "") use (&$converter) {
-        $prefix = [DIFF_ELEMENT_UNCHANGED => '    ', DIFF_ELEMENT_ADDED => '  + ', DIFF_ELEMENT_REMOVED => '  - '];
+    $converter = function ($diff, $depth = 0) use (&$converter) {
 
-        $depthPrefix = array_map(fn($item) => $indents . $item, $prefix);
-
-        $result = array_reduce($diff, function ($acc, $element) use (&$converter, $depthPrefix) {
-
-            $elementName = $element['name'];
+        $prettyStrings = array_reduce($diff, function ($strings, $property) use (&$converter, $depth) {
             [
-                DIFF_ELEMENT_UNCHANGED => $depthIndent,
-                DIFF_ELEMENT_ADDED => $plusSign,
-                DIFF_ELEMENT_REMOVED => $minusSign
-            ] = $depthPrefix;
+                'name' => $nodeName,
+                'type' => $nodeType,
+                'children' => $children,
+                'valueBefore' => $valueBefore,
+                'valueAfter' => $valueAfter
+            ] = $property;
 
-            switch ($element['type']) {
+            switch ($nodeType) {
                 case DIFF_ELEMENT_ADDED:
+                    $strings[] = makeString($depth, $nodeType, $nodeName, $valueAfter);
+                    break;
                 case DIFF_ELEMENT_REMOVED:
                 case DIFF_ELEMENT_UNCHANGED:
-                    $value = getFormattedString($element['value'], $depthIndent);
-                    $acc[] = createString($depthPrefix[$element['type']], $elementName, $value);
+                    $strings[] = makeString($depth, $nodeType, $nodeName, $valueBefore);
                     break;
                 case DIFF_ELEMENT_CHANGED:
-                    $oldValue = getFormattedString($element['oldValue'], $depthIndent);
-                    $newValue = getFormattedString($element['newValue'], $depthIndent);
-                    $acc[] = createString($plusSign, $elementName, $newValue);
-                    $acc[] = createString($minusSign, $elementName, $oldValue);
+                    $strings[] = makeString($depth, DIFF_ELEMENT_ADDED, $nodeName, $valueAfter);
+                    $strings[] = makeString($depth, DIFF_ELEMENT_REMOVED, $nodeName, $valueBefore);
                     break;
                 case DIFF_ELEMENT_NESTED:
-                    $acc[] = createString($depthIndent, $elementName, '{');
-                    $acc[] = $converter($element['children'], $depthIndent);
-                    $acc[] = $depthIndent . '}';
+                    $strings[] = makeString($depth, DIFF_ELEMENT_UNCHANGED, $nodeName, '{');
+                    $strings[] = $converter($children, $depth + 1);
+                    $strings[] = calculateIndents($depth + 1) . '}';
                     break;
                 default:
-                    throw new \Exception("Unknown type {$element['type']} in diff!");
+                    throw new \Exception("Unknown type {$nodeType} in diff!");
             }
 
-            return $acc;
+            return $strings;
         }, []);
 
-        return implode("\n", $result);
+        return implode("\n", $prettyStrings);
     };
 
-    $output = $converter($diff);
-    return "{\n$output\n}";
+    return "{\n" . $converter($diff) . "\n}";
 }
