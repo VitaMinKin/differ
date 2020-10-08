@@ -10,28 +10,15 @@ const DIFF_ELEMENT_CHANGED = 'changed';
 const DIFF_ELEMENT_UNCHANGED = 'unchanged';
 const DIFF_ELEMENT_NESTED = 'nested';
 
-function createNode($name, $type, $value, $oldValue = null, array $children = null)
+function createNode($name, $type, $valueBefore, $valueAfter = null, array $children = [])
 {
-    $nodeData = [
+    return [
         'name' => $name,
-        'type' => $type
+        'type' => $type,
+        'children' => $children,
+        'valueBefore' => $valueBefore,
+        'valueAfter' => $valueAfter
     ];
-
-    if (isset($children)) {
-        return array_merge($nodeData, ['children' => $children]);
-    }
-
-    if (isset($oldValue)) {
-        return array_merge(
-            $nodeData,
-            [
-                'oldValue' => $oldValue,
-                'newValue' => $value
-            ]
-        );
-    }
-
-    return array_merge($nodeData, ['value' => $value]);
 }
 
 function buildDiff(stdClass $firstConfig, stdClass $secondConfig)
@@ -44,26 +31,26 @@ function buildDiff(stdClass $firstConfig, stdClass $secondConfig)
 
         return array_map(function ($propertyName) use ($firstConfig, $secondConfig, $generateDiff) {
             if (!property_exists($firstConfig, $propertyName)) {
-                return createNode($propertyName, DIFF_ELEMENT_ADDED, $secondConfig->$propertyName);
+                return createNode($propertyName, DIFF_ELEMENT_ADDED, null, $secondConfig->$propertyName);
             }
 
             if (!property_exists($secondConfig, $propertyName)) {
                 return createNode($propertyName, DIFF_ELEMENT_REMOVED, $firstConfig->$propertyName);
             }
 
-            $beforeProperty = $firstConfig->$propertyName;
-            $afterProperty = $secondConfig->$propertyName;
+            $propertyBefore = $firstConfig->$propertyName;
+            $propertyAfter = $secondConfig->$propertyName;
 
-            if ($beforeProperty === $afterProperty) {
-                return createNode($propertyName, DIFF_ELEMENT_UNCHANGED, $beforeProperty);
+            if ($propertyBefore === $propertyAfter) {
+                return createNode($propertyName, DIFF_ELEMENT_UNCHANGED, $propertyBefore, $propertyAfter);
             }
 
-            if ((is_object($beforeProperty)) && (is_object($afterProperty))) {
-                $child = $generateDiff($beforeProperty, $afterProperty);
-                return createNode($propertyName, DIFF_ELEMENT_NESTED, null, null, $child);
+            if ((is_object($propertyBefore)) && (is_object($propertyAfter))) {
+                $child = $generateDiff($propertyBefore, $propertyAfter);
+                return createNode($propertyName, DIFF_ELEMENT_NESTED, $propertyBefore, null, $child);
             }
 
-            return createNode($propertyName, DIFF_ELEMENT_CHANGED, $afterProperty, $beforeProperty);
+            return createNode($propertyName, DIFF_ELEMENT_CHANGED, $propertyBefore, $propertyAfter);
         }, $configKeys);
     };
 
