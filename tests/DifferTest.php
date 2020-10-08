@@ -21,10 +21,10 @@ class DifferTest extends TestCase
     public function genDiffProvider()
     {
         return [
-           'pretty nested format' => ['beforeTree.json', 'afterTree.json', 'prettyNested.txt', null],
-            'plain format' => ['beforeTree.json', 'afterTree.json', 'plain.txt', 'plain'],
-            'yaml format' => ['before.yml', 'after.yml', 'yamlPlain.txt', 'unknownFormat'],
-            'json format' => ['beforeTree.json', 'afterTree.json', 'config.json', 'json']
+           'pretty nested format' => ['nestedBefore.json', 'nestedAfter.json', 'expectedNestedPretty.txt', null],
+            'plain format' => ['nestedBefore.json', 'nestedAfter.json', 'expectedPlain.txt', 'plain'],
+            'yaml format' => ['plainBefore.yml', 'plainAfter.yml', 'expectedPlainYml.txt', 'unknownFormat'],
+            'json format' => ['nestedBefore.json', 'nestedAfter.json', 'expectedNested.json', 'json']
         ];
     }
 
