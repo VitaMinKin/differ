@@ -18,32 +18,11 @@ function getPlainValue($value)
     return (isComplexValue($value)) ? 'complex value' : $value;
 }
 
-function makeString(array $parentNames, $nodeType, $valueBefore, $valueAfter)
-{
-    $сompoundParameterName = implode('.', $parentNames);
-
-    switch ($nodeType) {
-        case DIFF_ELEMENT_CHANGED:
-            $oldValue = getPlainValue($valueBefore);
-            $newValue = getPlainValue($valueAfter);
-            return "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'";
-        case DIFF_ELEMENT_ADDED:
-            $value = getPlainValue($valueAfter);
-            return "Property '$сompoundParameterName' was added with value: '$value'";
-        case DIFF_ELEMENT_REMOVED:
-            return "Property '$сompoundParameterName' was removed";
-        case DIFF_ELEMENT_UNCHANGED:
-            return "";
-        default:
-            throw new \Exception("Unknown type {$nodeType} in diff!");
-    }
-}
-
 function convertToPlain(array $diff)
 {
     $converter = function ($diff, array $parentNames = []) use (&$converter) {
 
-        $plainStrings = array_reduce($diff, function ($strings, $property) use (&$converter, $parentNames) {
+        return array_reduce($diff, function ($strings, $property) use (&$converter, $parentNames) {
             [
                 'name' => $nodeName,
                 'type' => $nodeType,
@@ -54,17 +33,30 @@ function convertToPlain(array $diff)
 
             $parentNames[] = $nodeName;
 
-            if ($nodeType == DIFF_ELEMENT_NESTED) {
-                $strings[] = $converter($children, $parentNames);
-                return $strings;
+            $сompoundParameterName = implode('.', $parentNames);
+
+            switch ($nodeType) {
+                case DIFF_ELEMENT_CHANGED:
+                    $oldValue = getPlainValue($valueBefore);
+                    $newValue = getPlainValue($valueAfter);
+                    return [
+                        ...$strings,
+                        "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'"
+                    ];
+                case DIFF_ELEMENT_ADDED:
+                    $value = getPlainValue($valueAfter);
+                    return [...$strings, "Property '$сompoundParameterName' was added with value: '$value'"];
+                case DIFF_ELEMENT_REMOVED:
+                    return [...$strings, "Property '$сompoundParameterName' was removed"];
+                case DIFF_ELEMENT_UNCHANGED:
+                    return $strings;
+                case DIFF_ELEMENT_NESTED:
+                    return [...$strings, ...$converter($children, $parentNames)];
+                default:
+                    throw new \Exception("Unknown type {$nodeType} in diff!");
             }
-
-            return [...$strings, makeString($parentNames, $nodeType, $valueBefore, $valueAfter)];
         }, []);
-
-        $withoutEmptyStrings = array_filter($plainStrings, fn($string) => $string !== "");
-        return implode("\n", $withoutEmptyStrings);
     };
 
-    return $converter($diff);
+    return implode("\n", $converter($diff));
 }
