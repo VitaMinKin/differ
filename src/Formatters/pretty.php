@@ -18,7 +18,7 @@ function createString($prefix, $property, $value)
     return $prefix . $property . ': ' . $value;
 }
 
-function calculateIndents(int $depth, $indent = "")
+function calculateIndents(int $depth, $indent = null)
 {
     if ($depth > 0) {
         $newIndent = "    " . $indent;
@@ -30,30 +30,30 @@ function calculateIndents(int $depth, $indent = "")
 
 function getPrefix($type, int $depth)
 {
-    $prefix = [
+    $prefixes = [
         DIFF_ELEMENT_UNCHANGED => '    ',
         DIFF_ELEMENT_ADDED => '  + ',
         DIFF_ELEMENT_REMOVED => '  - '
     ];
 
     $indent = calculateIndents($depth);
-    $depthPrefix = array_map(fn($item) => $indent . $item, $prefix);
+    $depthPrefixes = array_map(fn($prefix) => $indent . $prefix, $prefixes);
 
-    return $depthPrefix[$type];
+    return $depthPrefixes[$type];
 }
 
-function convertToPrettyString($item, int $depth)
+function convertToPrettyString($value, int $depth)
 {
-    if (is_bool($item)) {
-        return boolval($item) ? 'true' : 'false';
+    if (is_bool($value)) {
+        return boolval($value) ? 'true' : 'false';
     }
 
-    if (!is_object($item)) {
-        return $item;
+    if (!is_object($value)) {
+        return $value;
     }
 
     $indent = calculateIndents($depth + 1);
-    $json = json_encode($item, JSON_PRETTY_PRINT);
+    $json = json_encode($value, JSON_PRETTY_PRINT);
     $strings = explode("\n", $json);
     $formattedStrings = array_map(fn ($string) => $indent . removeQuotes($string), $strings);
     $formattedStrings[0] = '{';
