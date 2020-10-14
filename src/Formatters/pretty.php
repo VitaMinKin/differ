@@ -72,7 +72,7 @@ function convertToPretty(array $diff)
 {
     $converter = function ($diff, $depth = 0) use (&$converter) {
 
-        $prettyStrings = array_reduce($diff, function ($strings, $property) use (&$converter, $depth) {
+        $prettyStrings = array_map(function ($property) use (&$converter, $depth) {
             [
                 'name' => $nodeName,
                 'type' => $nodeType,
@@ -83,27 +83,23 @@ function convertToPretty(array $diff)
 
             switch ($nodeType) {
                 case DIFF_ELEMENT_ADDED:
-                    $strings[] = makeString($depth, $nodeType, $nodeName, $valueAfter);
-                    break;
+                    return makeString($depth, $nodeType, $nodeName, $valueAfter);
                 case DIFF_ELEMENT_REMOVED:
                 case DIFF_ELEMENT_UNCHANGED:
-                    $strings[] = makeString($depth, $nodeType, $nodeName, $valueBefore);
-                    break;
+                    return makeString($depth, $nodeType, $nodeName, $valueBefore);
                 case DIFF_ELEMENT_CHANGED:
                     $strings[] = makeString($depth, DIFF_ELEMENT_ADDED, $nodeName, $valueAfter);
                     $strings[] = makeString($depth, DIFF_ELEMENT_REMOVED, $nodeName, $valueBefore);
-                    break;
+                    return implode("\n", $strings);
                 case DIFF_ELEMENT_NESTED:
                     $strings[] = makeString($depth, DIFF_ELEMENT_UNCHANGED, $nodeName, '{');
                     $strings[] = $converter($children, $depth + 1);
                     $strings[] = calculateIndents($depth + 1) . '}';
-                    break;
+                    return implode("\n", $strings);
                 default:
                     throw new \Exception("Unknown type {$nodeType} in diff!");
             }
-
-            return $strings;
-        }, []);
+        }, $diff);
 
         return implode("\n", $prettyStrings);
     };
