@@ -22,7 +22,7 @@ function convertToPlain(array $diff)
 {
     $converter = function ($diff, array $parentNames = []) use (&$converter) {
 
-        return array_reduce($diff, function ($strings, $property) use (&$converter, $parentNames) {
+        $plainStrings = array_map(function ($property) use (&$converter, $parentNames) {
             [
                 'name' => $nodeName,
                 'type' => $nodeType,
@@ -39,23 +39,23 @@ function convertToPlain(array $diff)
                 case DIFF_ELEMENT_CHANGED:
                     $oldValue = getPlainValue($valueBefore);
                     $newValue = getPlainValue($valueAfter);
-                    return [
-                        ...$strings,
-                        "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'"
-                    ];
+                    return "Property '$сompoundParameterName' was changed. From '$oldValue' to '$newValue'";
                 case DIFF_ELEMENT_ADDED:
                     $value = getPlainValue($valueAfter);
-                    return [...$strings, "Property '$сompoundParameterName' was added with value: '$value'"];
+                    return "Property '$сompoundParameterName' was added with value: '$value'";
                 case DIFF_ELEMENT_REMOVED:
-                    return [...$strings, "Property '$сompoundParameterName' was removed"];
+                    return "Property '$сompoundParameterName' was removed";
                 case DIFF_ELEMENT_UNCHANGED:
-                    return $strings;
+                    return null;
                 case DIFF_ELEMENT_NESTED:
-                    return [...$strings, ...$converter($children, $parentNames)];
+                    $strings = $converter($children, $parentNames);
+                    return implode("\n", $strings);
                 default:
                     throw new \Exception("Unknown type {$nodeType} in diff!");
             }
-        }, []);
+        }, $diff);
+
+        return array_filter($plainStrings, fn($string) => $string !== null);
     };
 
     return implode("\n", $converter($diff));
